@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Search, Download, Plus } from "lucide-react"
+import { Search, Download, Plus } from 'lucide-react'
 import { useToast } from "@/hooks/use-toast"
 import { productAPI } from "@/lib/api"
 import ProductsList from "./ProductsList"
@@ -236,8 +236,16 @@ export default function ProductsPage() {
             onDelete={handleDeleteProduct} 
           />
           {filteredProducts.length === 0 && !loading && (
-            <div className="text-center py-8">
+            <div className="text-center py-8 space-y-4">
               <p className="text-gray-500">No products found matching your search.</p>
+              <Button 
+                onClick={fetchProducts} 
+                variant="outline" 
+                className="cursor-pointer"
+              >
+                <Search className="mr-2 h-4 w-4" />
+                Refresh Data
+              </Button>
             </div>
           )}
         </CardContent>
