@@ -25,6 +25,7 @@ export default function CreateProductPage() {
     originalPrice: "",
     discountedPrice: "",
     primaryCategory: "",
+    primaryCategoryImage: "",
     secondaryCategory: "",
     stock: "",
     weight: "",
@@ -55,7 +56,7 @@ export default function CreateProductPage() {
   const [loading, setLoading] = useState(false)
   const { toast } = useToast()
   const router = useRouter()
-
+console.log("New product state:", newProduct)
   const handleAddProduct = async () => {
     try {
       setLoading(true)
@@ -82,6 +83,7 @@ export default function CreateProductPage() {
         originalPrice: Number.parseFloat(newProduct.originalPrice),
         discountedPrice: newProduct.discountedPrice ? Number.parseFloat(newProduct.discountedPrice) : undefined,
         primaryCategory: newProduct.primaryCategory,
+        primaryCategoryImage: newProduct.primaryCategoryImage,
         secondaryCategory: newProduct.secondaryCategory,
         stock: Number.parseInt(newProduct.stock),
         weight: newProduct.weight ? Number.parseFloat(newProduct.weight) : undefined,
