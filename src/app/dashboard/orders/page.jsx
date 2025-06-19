@@ -175,14 +175,10 @@ export default function OrdersPage() {
       }
 
       // Prepare the complete order data with updated status
-      const updatedOrderData = {
-        ...currentOrder,
-        status: newStatus,
-        updatedAt: new Date().toISOString(),
-      }
+
 
       // Send complete order data to API
-      const response = await orderAPI.updateStatus(orderId, updatedOrderData, accessToken)
+      const response = await orderAPI.updateStatus(orderId, newStatus, accessToken)
 
       if (response.data.success) {
         setOrders(
@@ -207,7 +203,7 @@ export default function OrdersPage() {
       console.error("Error updating order:", error)
       toast({
         title: "Error",
-        description: "Failed to update order status.",
+        description: error.response.data.message || error.message || "Failed to update order status.",
         variant: "destructive",
       })
     }
@@ -420,11 +416,11 @@ export default function OrdersPage() {
                         <Badge variant={getStatusColor(order.status)}>{order.status}</Badge>
                       </TableCell>
                       <TableCell>
-                        <div className="flex items-center space-x-2">
+                        <div className="flex items-center space-x-2 ">
                           <Dialog>
                             <DialogTrigger asChild>
-                              <Button variant="outline" size="sm" onClick={() => setSelectedOrder(order)}>
-                                <Eye className="h-4 w-4" />
+                              <Button variant="outline" size="sm" className="cursor-pointer" onClick={() => setSelectedOrder(order)}>
+                                <Eye className="h-4 w-4 " />
                               </Button>
                             </DialogTrigger>
                             <DialogContent className="sm:max-w-[800px] max-h-[90vh] overflow-hidden">
