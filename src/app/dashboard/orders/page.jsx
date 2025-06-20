@@ -49,6 +49,7 @@ export default function OrdersPage() {
     try {
       setLoading(true)
       const response = await orderAPI.getAll(accessToken)
+     
 
       if (response.data.success) {
         const ordersData = response.data.data
@@ -218,7 +219,7 @@ export default function OrdersPage() {
         const customerEmail = order.user?.email || "N/A"
         const orderDate = new Date(order.createdAt).toLocaleDateString()
 
-        return [order._id, `"${customerName}"`, customerEmail, orderDate, `₹${order.totalAmount}`, order.status].join(
+        return [order._id, `"${customerName}"`, customerEmail, orderDate, `${order.totalAmount}`, order.status].join(
           ",",
         )
       }),

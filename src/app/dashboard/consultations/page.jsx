@@ -15,8 +15,10 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Search, Eye, Download, Phone, Calendar } from "lucide-react"
+import { Search, Eye, Download, Phone, Calendar, Loader2, ChevronLeft, ChevronRight } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
+import { consultationAPI } from "@/lib/api"
+import useAccessToken from "@/hooks/useSession"
 
 export default function ConsultationsPage() {
   const [consultations, setConsultations] = useState([])
@@ -24,80 +26,83 @@ export default function ConsultationsPage() {
   const [searchTerm, setSearchTerm] = useState("")
   const [statusFilter, setStatusFilter] = useState("all")
   const [selectedConsultation, setSelectedConsultation] = useState(null)
+  const [loading, setLoading] = useState(true)
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    totalBookings: 0,
+    limit: 10,
+    hasNext: false,
+    hasPrev: false,
+  })
+  const [currentPage, setCurrentPage] = useState(1)
+  const [itemsPerPage, setItemsPerPage] = useState(10)
   const { toast } = useToast()
+  const { accessToken } = useAccessToken()
 
-  // Mock data - replace with actual API calls
+  // Fetch consultations from API with pagination
+  const fetchConsultations = async (page = 1, limit = 10) => {
+    try {
+      setLoading(true)
+      const response = await consultationAPI.getAll(accessToken, { page, limit })
+
+      if (!response.data.success) {
+        throw new Error("Failed to fetch consultations")
+      }
+
+      if (response.data.success) {
+        // Transform API data to match component structure
+        const transformedData = response.data.data.map((booking) => ({
+          id: booking._id,
+          name: booking.name,
+          email: booking.email,
+          phone: booking.phoneNumber,
+          company: booking.birthPlace,
+          service: booking.purpose,
+          preferredDate: booking.dateOfBirth,
+          preferredTime: booking.timeOfBirth,
+          message: booking.message,
+          status: booking.status.toLowerCase(),
+          submittedAt: booking.createdAt,
+          gender: booking.gender,
+          birthPlace: booking.birthPlace,
+          dateOfBirth: booking.dateOfBirth,
+          timeOfBirth: booking.timeOfBirth,
+          updatedAt: booking.updatedAt,
+        }))
+
+        setConsultations(transformedData)
+        setFilteredConsultations(transformedData)
+
+        // Update pagination state
+        setPagination({
+          currentPage: response.data.pagination?.currentPage || page,
+          totalPages: response.data.pagination?.totalPages || 1,
+          totalBookings: response.data.pagination?.totalBookings || transformedData.length,
+          limit: response.data.pagination?.limit || limit,
+          hasNext: response.data.pagination?.hasNext || false,
+          hasPrev: response.data.pagination?.hasPrev || false,
+        })
+      } else {
+        throw new Error(response.message || "Failed to fetch consultations")
+      }
+    } catch (error) {
+      console.error("Error fetching consultations:", error)
+      toast({
+        title: "Error",
+        description: "Failed to fetch consultation data.",
+        variant: "destructive",
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
   useEffect(() => {
-    const mockConsultations = [
-      {
-        id: "CONS-001",
-        name: "Sarah Johnson",
-        email: "sarah@example.com",
-        phone: "+1 (555) 123-4567",
-        company: "Tech Solutions Inc.",
-        service: "Business Strategy",
-        preferredDate: "2024-01-20",
-        preferredTime: "10:00 AM",
-        message: "Looking for help with digital transformation strategy for our company.",
-        status: "pending",
-        submittedAt: "2024-01-15T10:30:00Z",
-      },
-      {
-        id: "CONS-002",
-        name: "Michael Chen",
-        email: "michael@example.com",
-        phone: "+1 (555) 987-6543",
-        company: "StartupXYZ",
-        service: "Product Development",
-        preferredDate: "2024-01-22",
-        preferredTime: "2:00 PM",
-        message: "Need guidance on product roadmap and development process.",
-        status: "scheduled",
-        submittedAt: "2024-01-14T14:15:00Z",
-      },
-      {
-        id: "CONS-003",
-        name: "Emily Rodriguez",
-        email: "emily@example.com",
-        phone: "+1 (555) 456-7890",
-        company: "Marketing Pro",
-        service: "Marketing Strategy",
-        preferredDate: "2024-01-18",
-        preferredTime: "11:30 AM",
-        message: "Want to discuss digital marketing strategies for B2B companies.",
-        status: "completed",
-        submittedAt: "2024-01-12T09:45:00Z",
-      },
-      {
-        id: "CONS-004",
-        name: "David Kim",
-        email: "david@example.com",
-        phone: "+1 (555) 321-0987",
-        company: "Innovation Labs",
-        service: "Technology Consulting",
-        preferredDate: "2024-01-25",
-        preferredTime: "3:30 PM",
-        message: "Seeking advice on implementing AI solutions in our workflow.",
-        status: "cancelled",
-        submittedAt: "2024-01-13T16:20:00Z",
-      },
-      {
-        id: "CONS-005",
-        name: "Lisa Thompson",
-        email: "lisa@example.com",
-        phone: "+1 (555) 654-3210",
-        company: "Growth Ventures",
-        service: "Business Strategy",
-        preferredDate: "2024-01-19",
-        preferredTime: "9:00 AM",
-        message: "Need help with scaling our business operations.",
-        status: "pending",
-        submittedAt: "2024-01-16T11:10:00Z",
-      },
-    ]
-    setConsultations(mockConsultations)
-    setFilteredConsultations(mockConsultations)
-  }, [])
+    if (accessToken) {
+      fetchConsultations(currentPage, itemsPerPage)
+    }
+  }, [accessToken, currentPage, itemsPerPage])
 
   useEffect(() => {
     let filtered = consultations.filter(
@@ -115,10 +120,25 @@ export default function ConsultationsPage() {
     setFilteredConsultations(filtered)
   }, [searchTerm, statusFilter, consultations])
 
+  const handlePageChange = (page) => {
+    if (page >= 1 && page <= pagination.totalPages) {
+      setCurrentPage(page)
+    }
+  }
+
+  const handleItemsPerPageChange = (value) => {
+    setItemsPerPage(Number.parseInt(value))
+    setCurrentPage(1) // Reset to first page when changing items per page
+  }
+
   const updateConsultationStatus = async (consultationId, newStatus) => {
+    const FixCharAt = newStatus.charAt(0).toUpperCase() + newStatus.slice(1)
+
     try {
-      // Replace with actual API call
-      // await axios.put(`/api/consultations/${consultationId}`, { status: newStatus })
+      const response = await consultationAPI.updateStatus(consultationId, FixCharAt, accessToken)
+      if (!response.data.success) {
+        throw new Error("Failed to update consultation status")
+      }
 
       setConsultations(
         consultations.map((consultation) =>
@@ -131,6 +151,7 @@ export default function ConsultationsPage() {
         description: `Consultation status changed to ${newStatus}.`,
       })
     } catch (error) {
+      console.error("Error updating consultation:", error)
       toast({
         title: "Error",
         description: "Failed to update consultation status.",
@@ -140,7 +161,19 @@ export default function ConsultationsPage() {
   }
 
   const exportToCSV = () => {
-    const headers = ["ID", "Name", "Email", "Phone", "Company", "Service", "Preferred Date", "Status", "Submitted At"]
+    const headers = [
+      "ID",
+      "Name",
+      "Email",
+      "Phone",
+      "Birth Place",
+      "Purpose",
+      "Gender",
+      "Date of Birth",
+      "Time of Birth",
+      "Status",
+      "Submitted At",
+    ]
     const csvContent = [
       headers.join(","),
       ...filteredConsultations.map((consultation) =>
@@ -149,9 +182,11 @@ export default function ConsultationsPage() {
           `"${consultation.name}"`,
           consultation.email,
           consultation.phone,
-          `"${consultation.company}"`,
+          `"${consultation.birthPlace}"`,
           `"${consultation.service}"`,
-          consultation.preferredDate,
+          consultation.gender,
+          consultation.dateOfBirth,
+          consultation.timeOfBirth,
           consultation.status,
           consultation.submittedAt,
         ].join(","),
@@ -190,6 +225,40 @@ export default function ConsultationsPage() {
     return new Date(dateString).toLocaleString()
   }
 
+  const formatTime = (timeString) => {
+    if (!timeString) return ""
+    return timeString.substring(0, 5)
+  }
+
+  // Generate page numbers for pagination
+  const generatePageNumbers = () => {
+    const pages = []
+    const maxVisiblePages = 5
+    let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2))
+    const endPage = Math.min(pagination.totalPages, startPage + maxVisiblePages - 1)
+
+    if (endPage - startPage + 1 < maxVisiblePages) {
+      startPage = Math.max(1, endPage - maxVisiblePages + 1)
+    }
+
+    for (let i = startPage; i <= endPage; i++) {
+      pages.push(i)
+    }
+
+    return pages
+  }
+
+  if (loading) {
+    return (
+      <div className="flex-1 space-y-4">
+        <div className="flex items-center justify-center h-64">
+          <Loader2 className="h-8 w-8 animate-spin" />
+          <span className="ml-2">Loading consultations...</span>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="flex-1 space-y-4">
       <div className="flex items-center justify-between">
@@ -207,7 +276,7 @@ export default function ConsultationsPage() {
             <Phone className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{consultations.length}</div>
+            <div className="text-2xl font-bold">{pagination.totalBookings}</div>
             <p className="text-xs text-muted-foreground">All consultation requests</p>
           </CardContent>
         </Card>
@@ -246,7 +315,12 @@ export default function ConsultationsPage() {
       <Card>
         <CardHeader>
           <CardTitle>Consultation Management</CardTitle>
-          <CardDescription>View and manage consultation call requests</CardDescription>
+          <CardDescription>
+            View and manage consultation call requests
+            <span className="ml-2">
+              (Page {pagination.currentPage} of {pagination.totalPages}, Total: {pagination.totalBookings})
+            </span>
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-2 mb-4">
@@ -271,6 +345,17 @@ export default function ConsultationsPage() {
                 <SelectItem value="cancelled">Cancelled</SelectItem>
               </SelectContent>
             </Select>
+            <Select value={itemsPerPage.toString()} onValueChange={handleItemsPerPageChange}>
+              <SelectTrigger className="w-[120px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="5">5 per page</SelectItem>
+                <SelectItem value="10">10 per page</SelectItem>
+                <SelectItem value="20">20 per page</SelectItem>
+                <SelectItem value="50">50 per page</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="rounded-md border">
@@ -278,9 +363,9 @@ export default function ConsultationsPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Name</TableHead>
-                  <TableHead>Company</TableHead>
-                  <TableHead>Service</TableHead>
-                  <TableHead>Preferred Date</TableHead>
+                  <TableHead>Birth Place</TableHead>
+                  <TableHead>Purpose</TableHead>
+                  <TableHead>Birth Details</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Actions</TableHead>
                 </TableRow>
@@ -294,16 +379,18 @@ export default function ConsultationsPage() {
                         <div className="text-sm text-muted-foreground">{consultation.email}</div>
                       </div>
                     </TableCell>
-                    <TableCell>{consultation.company}</TableCell>
+                    <TableCell>{consultation.birthPlace}</TableCell>
                     <TableCell>{consultation.service}</TableCell>
                     <TableCell>
                       <div>
-                        <div>{formatDate(consultation.preferredDate)}</div>
-                        <div className="text-sm text-muted-foreground">{consultation.preferredTime}</div>
+                        <div>{formatDate(consultation.dateOfBirth)}</div>
+                        <div className="text-sm text-muted-foreground">{formatTime(consultation.timeOfBirth)}</div>
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={getStatusColor(consultation.status)}>{consultation.status}</Badge>
+                      <Badge variant={getStatusColor(consultation.status)}>
+                        {consultation.status.charAt(0).toUpperCase() + consultation.status.slice(1)}
+                      </Badge>
                     </TableCell>
                     <TableCell>
                       <Dialog>
@@ -314,7 +401,7 @@ export default function ConsultationsPage() {
                         </DialogTrigger>
                         <DialogContent className="sm:max-w-[500px]">
                           <DialogHeader>
-                            <DialogTitle>Consultation Details - {selectedConsultation?.id}</DialogTitle>
+                            <DialogTitle>Consultation Details</DialogTitle>
                             <DialogDescription>Complete consultation request information</DialogDescription>
                           </DialogHeader>
                           {selectedConsultation && (
@@ -333,11 +420,15 @@ export default function ConsultationsPage() {
                                   <p className="text-sm text-muted-foreground">{selectedConsultation.phone}</p>
                                 </div>
                                 <div>
-                                  <p className="text-sm font-medium">Company</p>
-                                  <p className="text-sm text-muted-foreground">{selectedConsultation.company}</p>
+                                  <p className="text-sm font-medium">Gender</p>
+                                  <p className="text-sm text-muted-foreground">{selectedConsultation.gender}</p>
                                 </div>
                                 <div>
-                                  <p className="text-sm font-medium">Service</p>
+                                  <p className="text-sm font-medium">Birth Place</p>
+                                  <p className="text-sm text-muted-foreground">{selectedConsultation.birthPlace}</p>
+                                </div>
+                                <div>
+                                  <p className="text-sm font-medium">Purpose</p>
                                   <p className="text-sm text-muted-foreground">{selectedConsultation.service}</p>
                                 </div>
                                 <div>
@@ -348,10 +439,10 @@ export default function ConsultationsPage() {
                                 </div>
                               </div>
                               <div>
-                                <p className="text-sm font-medium">Preferred Date & Time</p>
+                                <p className="text-sm font-medium">Birth Date & Time</p>
                                 <p className="text-sm text-muted-foreground">
-                                  {formatDate(selectedConsultation.preferredDate)} at{" "}
-                                  {selectedConsultation.preferredTime}
+                                  {formatDate(selectedConsultation.dateOfBirth)} at{" "}
+                                  {formatTime(selectedConsultation.timeOfBirth)}
                                 </p>
                               </div>
                               <div>
@@ -386,6 +477,52 @@ export default function ConsultationsPage() {
                 ))}
               </TableBody>
             </Table>
+          </div>
+
+          {/* Pagination Controls */}
+          <div className="flex items-center justify-between space-x-2 py-4">
+            <div className="flex items-center space-x-2">
+              <p className="text-sm text-muted-foreground">
+                Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
+                {Math.min(currentPage * itemsPerPage, pagination.totalBookings)} of {pagination.totalBookings} results
+              </p>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={!pagination.hasPrev || currentPage === 1}
+              >
+                <ChevronLeft className="h-4 w-4" />
+                Previous
+              </Button>
+
+              <div className="flex items-center space-x-1">
+                {generatePageNumbers().map((page) => (
+                  <Button
+                    key={page}
+                    variant={currentPage === page ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => handlePageChange(page)}
+                    className="w-8 h-8 p-0"
+                  >
+                    {page}
+                  </Button>
+                ))}
+              </div>
+
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={!pagination.hasNext || currentPage === pagination.totalPages}
+              >
+                Next
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>

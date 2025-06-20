@@ -43,11 +43,11 @@ const items = [
     url: "/dashboard/consultations",
     icon: Phone,
   },
-  {
-    title: "Reports",
-    url: "/dashboard/reports",
-    icon: FileText,
-  },
+  // {
+  //   title: "Reports",
+  //   url: "/dashboard/reports",
+  //   icon: FileText,
+  // },
   {
     title: "Logout",
     url: "/dashboard/logout",
@@ -74,7 +74,7 @@ const handleLogout = async () => {
             <BarChart3 className="size-4" />
           </div>
           <div className="grid flex-1 text-left text-sm leading-tight">
-            <span className="truncate font-semibold">Admin Dashboard</span>
+            <span className="truncate font-semibold">Sunita Gemstone </span>
             <span className="truncate text-xs text-muted-foreground">Management Portal</span>
           </div>
         </div>
