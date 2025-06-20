@@ -32,7 +32,8 @@ export const productAPI = {
 };
 
 export const orderAPI = {
-  getAll: (token) => api.get("/orders", {
+  // getAll: (token) => api.get("/orders/admin/all", {
+  getAll: (token) => api.get("/orders?limit=100000", {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -50,7 +51,7 @@ export const orderAPI = {
 }
 
 export const consultationAPI = {
-  getAll: (token) => api.get("/consultations", {
+  getAll: (token) => api.get("/booking-call", {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -60,7 +61,7 @@ export const consultationAPI = {
       Authorization: `Bearer ${token}`,
     },
   }),
-  updateStatus: (id, status, token) => api.put(`/consultations/${id}/status`, { status }, {
+  updateStatus: (id, status, token) => api.put(`booking-call/${id}`, { status }, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -68,7 +69,7 @@ export const consultationAPI = {
 }
 
 export const analyticsAPI = {
-  getSalesData: (token) => api.get("/analytics/sales", {
+  getSalesData: (token) => api.get("/orders/admin/stats", {
     headers: {
       Authorization: `Bearer ${token}`,
     },

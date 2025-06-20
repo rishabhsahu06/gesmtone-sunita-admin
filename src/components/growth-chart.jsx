@@ -2,19 +2,32 @@
 
 import { Line, LineChart, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts"
 
-const data = [
-  { year: "2021", growth: 25.0 },
-  { year: "2022", growth: 20.0 },
-  { year: "2023", growth: 14.3 },
-  { year: "2024", growth: 16.7 },
-]
+export function GrowthChart({ data = [] }) {
+  // Transform and calculate growth data
+  const sortedData = [...data].sort((a, b) => new Date(a.date) - new Date(b.date))
 
-export function GrowthChart() {
+  const chartData = sortedData.map((item, index) => {
+    let growth = 0
+    if (index > 0) {
+      const prevRevenue = sortedData[index - 1].revenue
+      const currentRevenue = item.revenue
+      if (prevRevenue > 0) {
+        growth = ((currentRevenue - prevRevenue) / prevRevenue) * 100
+      }
+    }
+
+    return {
+      date: new Date(item.date).toLocaleDateString("en-US", { month: "short", day: "numeric" }),
+      growth: Number.parseFloat(growth.toFixed(1)),
+      revenue: item.revenue,
+    }
+  })
+
   return (
     <ResponsiveContainer width="100%" height={300}>
-      <LineChart data={data}>
+      <LineChart data={chartData}>
         <CartesianGrid strokeDasharray="3 3" />
-        <XAxis dataKey="year" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
+        <XAxis dataKey="date" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
         <YAxis
           stroke="#888888"
           fontSize={12}

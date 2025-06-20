@@ -2,25 +2,40 @@
 
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts"
 
-const data = [
-  { name: "Jan", total: 1200 },
-  { name: "Feb", total: 1900 },
-  { name: "Mar", total: 2800 },
-  { name: "Apr", total: 3900 },
-  { name: "May", total: 4800 },
-  { name: "Jun", total: 3800 },
-  { name: "Jul", total: 4300 },
-  { name: "Aug", total: 5200 },
-  { name: "Sep", total: 4100 },
-  { name: "Oct", total: 6200 },
-  { name: "Nov", total: 5400 },
-  { name: "Dec", total: 7200 },
-]
+export function Overview({ data = [] }) {
+  // Transform the API data to match the chart format
+  const transformData = (dailyStats) => {
+    if (!dailyStats || dailyStats.length === 0) {
+      return []
+    }
 
-export function Overview() {
+    return dailyStats
+      .map((stat) => {
+        const date = new Date(stat.date)
+        const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+
+        return {
+          name: `${monthNames[date.getMonth()]} ${date.getDate()}`,
+          total: stat.revenue,
+          orders: stat.orders,
+        }
+      })
+      .sort((a, b) => new Date(a.date) - new Date(b.date))
+  }
+
+  const chartData = transformData(data)
+
+  if (!chartData || chartData.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-[350px]">
+        <div className="text-center text-muted-foreground">No sales data available</div>
+      </div>
+    )
+  }
+
   return (
     <ResponsiveContainer width="100%" height={350}>
-      <BarChart data={data}>
+      <BarChart data={chartData}>
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis dataKey="name" stroke="#888888" fontSize={12} tickLine={false} axisLine={false} />
         <YAxis
@@ -28,9 +43,20 @@ export function Overview() {
           fontSize={12}
           tickLine={false}
           axisLine={false}
-          tickFormatter={(value) => `$${value}`}
+          tickFormatter={(value) => `₹${value}`}
         />
-        <Tooltip formatter={(value) => [`$${value}`, "Revenue"]} labelStyle={{ color: "#000" }} />
+        <Tooltip
+          formatter={(value, name) => {
+            if (name === "total") return [`₹${value}`, "Revenue"]
+            return [value, name]
+          }}
+          labelStyle={{ color: "#000" }}
+          contentStyle={{
+            backgroundColor: "#fff",
+            border: "1px solid #ccc",
+            borderRadius: "4px",
+          }}
+        />
         <Bar dataKey="total" fill="#adfa1d" radius={[4, 4, 0, 0]} />
       </BarChart>
     </ResponsiveContainer>
