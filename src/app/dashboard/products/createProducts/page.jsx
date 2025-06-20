@@ -56,7 +56,7 @@ export default function CreateProductPage() {
   const [loading, setLoading] = useState(false)
   const { toast } = useToast()
   const router = useRouter()
-console.log("New product state:", newProduct)
+
   const handleAddProduct = async () => {
     try {
       setLoading(true)
@@ -111,7 +111,7 @@ console.log("New product state:", newProduct)
         Object.entries(productData).filter(([_, value]) => value !== undefined),
       )
 
-      console.log("Product data being sent:", cleanProductData) // For debugging
+   
 
       await productAPI.create(cleanProductData, accessToken)
 

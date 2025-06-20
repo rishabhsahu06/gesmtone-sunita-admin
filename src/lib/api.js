@@ -42,7 +42,7 @@ export const orderAPI = {
       Authorization: `Bearer ${token}`,
     },
   }),
-  updateStatus: (id, status, token) => api.put(`/orders/${id}/status`, { status }, {
+  updateStatus: (id, status, token) => api.put(`/orders/${id}`, { status }, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
