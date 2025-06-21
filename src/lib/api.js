@@ -33,6 +33,10 @@ export const productAPI = {
 
 export const orderAPI = {
   // getAll: (token) => api.get("/orders/admin/all", {
+// /api/orders?status=Processing&limit=1000')
+// /api/orders?startDate=2024-01-01&endDate=2024-12-31&limit=1000')
+// /api/orders?startDate=2024-01-01&endDate=2024-12-31&limit=1000')
+// fetch('/api/orders?status=Processing&limit=1000')
   getAll: (token) => api.get("/orders?limit=100000", {
     headers: {
       Authorization: `Bearer ${token}`,

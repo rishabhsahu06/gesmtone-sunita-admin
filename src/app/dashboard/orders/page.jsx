@@ -81,7 +81,7 @@ export default function OrdersPage() {
     fetchOrders()
   }, [accessToken])
 
-  console.log(orders, "orders")
+
 
   useEffect(() => {
     let filtered = orders.filter((order) => {
