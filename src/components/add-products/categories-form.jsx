@@ -146,7 +146,7 @@ const PRIMARY_CATEGORIES = [
     image: "https://res.cloudinary.com/dtcq8v9za/image/upload/v1750390239/gemstone-uploads/file_tlvpka.png",
   },
   {
-    id: "other",
+    id: "other-gemstones",
     name: "Other",
     image: "https://res.cloudinary.com/dtcq8v9za/image/upload/v1749552629/gemstone-uploads/file_kfzeam.webp",
   },
