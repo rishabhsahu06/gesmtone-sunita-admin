@@ -161,7 +161,7 @@ export default function VideoUploadSection({ product, onChange }) {
           fileInput.value = ''
         }
 
-        // Refresh videos list
+        // Refresh videos list ///
         await fetchVideos()
 
         toast({
