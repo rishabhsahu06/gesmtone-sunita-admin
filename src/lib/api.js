@@ -30,6 +30,29 @@ export const productAPI = {
     },
   }),
 };
+export const reelAPI = {
+  getAll: (token) => api.get("/video", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }),
+  getById: (id, token) => api.get(`/video/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }),
+  create: (data, token) => api.post("/video", data, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }),
+
+  delete: (id, token) => api.delete(`/video/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }),
+};
 
 export const orderAPI = {
   // getAll: (token) => api.get("/orders/admin/all", {

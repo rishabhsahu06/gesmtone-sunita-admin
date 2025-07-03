@@ -1,6 +1,6 @@
 "use client"
 
-import { BarChart3, Package, ShoppingCart, Phone, Settings, Home, FileText, LogOut } from "lucide-react"
+import { BarChart3, Package, ShoppingCart, Phone, Settings, Home, FileText, LogOut,BookHeart  } from "lucide-react"
 import {
   Sidebar,
   SidebarContent,
@@ -42,6 +42,11 @@ const items = [
     title: "Consultations",
     url: "/dashboard/consultations",
     icon: Phone,
+  },
+  {
+    title: "Reels",
+    url: "/dashboard/reels",
+    icon: BookHeart,
   },
   // {
   //   title: "Reports",

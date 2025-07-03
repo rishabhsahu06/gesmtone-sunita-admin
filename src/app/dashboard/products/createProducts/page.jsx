@@ -15,6 +15,7 @@ import AdditionalDetailsForm from "@/components/add-products/additional-details-
 import ImageUploadSection from "@/components/add-products/image-upload-section"
 import useAccessToken from "@/hooks/useSession"
 
+
 export default function CreateProductPage() {
   const { accessToken } = useAccessToken()
 
@@ -169,6 +170,8 @@ export default function CreateProductPage() {
             <ImageUploadSection product={newProduct} onChange={setNewProduct} />
           </div>
         </div>
+
+       
       </div>
     </div>
   )
