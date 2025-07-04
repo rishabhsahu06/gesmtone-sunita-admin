@@ -30,9 +30,36 @@ export const productAPI = {
     },
   }),
 };
+export const reelAPI = {
+  getAll: (token) => api.get("/video", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }),
+  getById: (id, token) => api.get(`/video/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }),
+  create: (data, token) => api.post("/video", data, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }),
+
+  delete: (id, token) => api.delete(`/video/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }),
+};
 
 export const orderAPI = {
   // getAll: (token) => api.get("/orders/admin/all", {
+// /api/orders?status=Processing&limit=1000')
+// /api/orders?startDate=2024-01-01&endDate=2024-12-31&limit=1000')
+// /api/orders?startDate=2024-01-01&endDate=2024-12-31&limit=1000')
+// fetch('/api/orders?status=Processing&limit=1000')
   getAll: (token) => api.get("/orders?limit=100000", {
     headers: {
       Authorization: `Bearer ${token}`,

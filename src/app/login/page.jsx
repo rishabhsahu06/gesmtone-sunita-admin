@@ -80,7 +80,7 @@ export default function LoginPage() {
         }
       }
     } catch (error) {
-      console.error("Login error:", error)
+      console.error("Login errorr:", error)
       setError("An error occurred during login. Please try again.")
     } finally {
       setIsLoading(false)
