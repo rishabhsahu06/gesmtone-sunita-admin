@@ -155,7 +155,7 @@ export default function VideoUploadSection({ product, onChange }) {
         setPreviewUrl(null)
         setVideoTitle("")
         
-        // Reset the file input
+        // Reset the file input ///
         const fileInput = document.getElementById('video-upload')
         if (fileInput) {
           fileInput.value = ''
