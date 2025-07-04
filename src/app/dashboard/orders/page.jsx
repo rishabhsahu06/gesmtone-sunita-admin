@@ -150,7 +150,7 @@ export default function OrdersPage() {
     }
   };
 
-  // Generate page numbers for pagination.....
+  // Generate page numbers for pagination........
   const getPageNumbers = () => {
     const pages = [];
     const maxVisiblePages = 5;
