@@ -12,6 +12,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { useToast } from "@/hooks/use-toast"
 import { Eye, EyeOff, Lock, Mail, BarChart3, AlertCircle } from "lucide-react"
 import Link from "next/link"
+import Image from "next/image"
 
 export default function LoginPage() {
   const [formData, setFormData] = useState({
@@ -101,9 +102,9 @@ export default function LoginPage() {
         {/* Logo and Header */}
         <div className="text-center space-y-2">
           <div className="flex justify-center">
-            <div className="flex items-center justify-center w-12 h-12 bg-primary rounded-lg">
-              <BarChart3 className="w-6 h-6 text-primary-foreground" />
-            </div>
+           <div>
+            <Image src="/logoSunita.png" alt="Logo" width={50} height={50} className="h-12 w-auto" />
+           </div>
           </div>
           <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
           <p className="text-gray-600">Sign in to your account to continue</p>
@@ -200,15 +201,15 @@ export default function LoginPage() {
               </Button>
 
               {/* Demo Login Button */}
-              <Button type="button" variant="outline" className="w-full" onClick={handleDemoLogin} disabled={isLoading}>
+              {/* <Button type="button" variant="outline" className="w-full" onClick={handleDemoLogin} disabled={isLoading}>
                 Use Demo Credentials
-              </Button>
+              </Button> */}
             </form>
           </CardContent>
         </Card>
 
         {/* Demo Credentials Info */}
-        <Card className="bg-blue-50 border-blue-200">
+        {/* <Card className="bg-blue-50 border-blue-200">
           <CardContent className="pt-6">
             <div className="text-center space-y-2">
               <h3 className="font-medium text-blue-900">Demo Credentials</h3>
@@ -223,17 +224,17 @@ export default function LoginPage() {
               <p className="text-xs text-blue-600">Click "Use Demo Credentials" to auto-fill the form</p>
             </div>
           </CardContent>
-        </Card>
+        </Card> */}
 
         {/* Footer */}
-        <div className="text-center text-sm text-gray-500">
+        {/* <div className="text-center text-sm text-gray-500">
           <p>
             Don't have an account?{" "}
             <Link href="/register" className="text-primary hover:text-primary/80 transition-colors">
               Contact administrator
             </Link>
           </p>
-        </div>
+        </div> */}
       </div>
     </div>
   )
