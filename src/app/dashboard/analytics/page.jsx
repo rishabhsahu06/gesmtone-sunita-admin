@@ -1,58 +1,67 @@
-"use client"
+"use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { SalesChart } from "@/components/sales-chart"
-import { GrowthChart } from "@/components/growth-chart"
-import { CategoryChart } from "@/components/category-chart"
-import { TrendingUp, DollarSign, ShoppingCart } from "lucide-react"
-import { useEffect, useState } from "react"
-import useAccessToken from "@/hooks/useSession"
-import { analyticsAPI } from "@/lib/api"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { SalesChart } from "@/components/sales-chart";
+import { GrowthChart } from "@/components/growth-chart";
+import { CategoryChart } from "@/components/category-chart";
+import { TrendingUp, DollarSign, ShoppingCart } from "lucide-react";
+import { useEffect, useState } from "react";
+import useAccessToken from "@/hooks/useSession";
+import { analyticsAPI } from "@/lib/api";
 
 export default function AnalyticsPage() {
-  const { accessToken } = useAccessToken()
-  const [analyticsData, setAnalyticsData] = useState(null)
-  const [loading, setLoading] = useState(true)
+  const { accessToken } = useAccessToken();
+  const [analyticsData, setAnalyticsData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   const fetchAnalytic = async () => {
     try {
-      setLoading(true)
-      const response = await analyticsAPI.getSalesData(accessToken)
-      console.log(response)
-      setAnalyticsData(response.data.data)
+      setLoading(true);
+      const response = await analyticsAPI.getSalesData(accessToken);
+      console.log(response);
+      setAnalyticsData(response.data.data);
     } catch (error) {
-      console.error("Error fetching analytics:", error)
+      console.error("Error fetching analytics:", error);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
     if (accessToken) {
-      fetchAnalytic()
+      fetchAnalytic();
     }
-  }, [accessToken])
+  }, [accessToken]);
 
   // Calculate growth rate from daily stats
   const calculateGrowthRate = () => {
-    if (!analyticsData?.dailyStats || analyticsData.dailyStats.length < 2) return 0
-    const sortedStats = [...analyticsData.dailyStats].sort((a, b) => new Date(a.date) - new Date(b.date))
-    const firstRevenue = sortedStats[0]?.revenue || 0
-    const lastRevenue = sortedStats[sortedStats.length - 1]?.revenue || 0
-    if (firstRevenue === 0) return 0
-    return (((lastRevenue - firstRevenue) / firstRevenue) * 100).toFixed(1)
-  }
+    if (!analyticsData?.dailyStats || analyticsData.dailyStats.length < 2)
+      return 0;
+    const sortedStats = [...analyticsData.dailyStats].sort(
+      (a, b) => new Date(a.date) - new Date(b.date)
+    );
+    const firstRevenue = sortedStats[0]?.revenue || 0;
+    const lastRevenue = sortedStats[sortedStats.length - 1]?.revenue || 0;
+    if (firstRevenue === 0) return 0;
+    return (((lastRevenue - firstRevenue) / firstRevenue) * 100).toFixed(1);
+  };
 
   if (loading) {
-    return <div className="flex-1 space-y-4">Loading...</div>
+    return <div className="flex-1 space-y-4">Loading...</div>;
   }
 
   if (!analyticsData) {
-    return <div className="flex-1 space-y-4">Error loading data</div>
+    return <div className="flex-1 space-y-4">Error loading data</div>;
   }
 
-  const { overview, dailyStats, statusBreakdown } = analyticsData
-  const growthRate = calculateGrowthRate()
+  const { overview, dailyStats, statusBreakdown } = analyticsData;
+  const growthRate = calculateGrowthRate();
 
   return (
     <div className="flex-1 space-y-4">
@@ -67,10 +76,12 @@ export default function AnalyticsPage() {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">₹{overview.totalRevenue.toLocaleString()}</div>
+            <div className="text-2xl font-bold">
+              ₹{overview.totalRevenue.toLocaleString()}
+            </div>
             <p className="text-xs text-muted-foreground flex items-center">
               <TrendingUp className="mr-1 h-3 w-3 text-green-500" />
-              Monthly revenue 
+              Monthly revenue
             </p>
           </CardContent>
         </Card>
@@ -93,7 +104,9 @@ export default function AnalyticsPage() {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">₹{overview.avgOrderValue.toLocaleString()}</div>
+            <div className="text-2xl font-bold">
+              ₹{overview.avgOrderValue.toLocaleString()}
+            </div>
             <p className="text-xs text-muted-foreground flex items-center">
               <TrendingUp className="mr-1 h-3 w-3 text-green-500" />
               Average order value
@@ -143,5 +156,5 @@ export default function AnalyticsPage() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }
