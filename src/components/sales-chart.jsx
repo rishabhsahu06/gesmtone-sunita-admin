@@ -42,7 +42,7 @@ export function SalesChart({ data = [] }) {
           formatter={(value) => [`₹${value.toLocaleString()}`, "Revenue"]}
           labelStyle={{ color: "#000" }}
         />
-        <Bar dataKey="revenue" fill="#adfa1d" radius={[4, 4, 0, 0]} />
+        <Bar dataKey="revenue" fill="#2d8bba" radius={[4, 4, 0, 0]} />
       </BarChart>
     </ResponsiveContainer>
   );
