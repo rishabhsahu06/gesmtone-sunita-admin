@@ -93,6 +93,11 @@ export const consultationAPI = {
       Authorization: `Bearer ${token}`,
     },
   }),
+  delete: (id, token) => api.delete(`/booking-call/${id}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }),
 }
 
 export const analyticsAPI = {

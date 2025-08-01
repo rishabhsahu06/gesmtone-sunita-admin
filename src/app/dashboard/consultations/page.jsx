@@ -14,8 +14,19 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Search, Eye, Download, Phone, Calendar, Loader2, ChevronLeft, ChevronRight } from "lucide-react"
+import { Search, Eye, Download, Phone, Calendar, Loader2, ChevronLeft, ChevronRight, Trash2 } from "lucide-react"
 import { useToast } from "@/hooks/use-toast"
 import { consultationAPI } from "@/lib/api"
 import useAccessToken from "@/hooks/useSession"
@@ -27,6 +38,7 @@ export default function ConsultationsPage() {
   const [statusFilter, setStatusFilter] = useState("all")
   const [selectedConsultation, setSelectedConsultation] = useState(null)
   const [loading, setLoading] = useState(true)
+  const [deletingId, setDeletingId] = useState(null)
   const [pagination, setPagination] = useState({
     currentPage: 1,
     totalPages: 1,
@@ -157,6 +169,43 @@ export default function ConsultationsPage() {
         description: "Failed to update consultation status.",
         variant: "destructive",
       })
+    }
+  }
+
+  const deleteConsultation = async (consultationId) => {
+    try {
+      setDeletingId(consultationId)
+      
+      // Call the API to delete the consultation
+      const response = await consultationAPI.delete(consultationId, accessToken)
+      
+      if (!response.data.success) {
+        throw new Error("Failed to delete consultation")
+      }
+
+      // Remove the consultation from the local state
+      setConsultations(consultations.filter((consultation) => consultation.id !== consultationId))
+      setFilteredConsultations(filteredConsultations.filter((consultation) => consultation.id !== consultationId))
+
+      // Update pagination count
+      setPagination(prev => ({
+        ...prev,
+        totalBookings: prev.totalBookings - 1
+      }))
+
+      toast({
+        title: "Consultation deleted",
+        description: "The consultation has been successfully deleted.",
+      })
+    } catch (error) {
+      console.error("Error deleting consultation:", error)
+      toast({
+        title: "Error",
+        description: "Failed to delete consultation. Please try again.",
+        variant: "destructive",
+      })
+    } finally {
+      setDeletingId(null)
     }
   }
 
@@ -393,85 +442,129 @@ export default function ConsultationsPage() {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button variant="outline" size="sm" onClick={() => setSelectedConsultation(consultation)}>
-                            <Eye className="h-4 w-4" />
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-[500px]">
-                          <DialogHeader>
-                            <DialogTitle>Consultation Details</DialogTitle>
-                            <DialogDescription>Complete consultation request information</DialogDescription>
-                          </DialogHeader>
-                          {selectedConsultation && (
-                            <div className="space-y-4">
-                              <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                  <p className="text-sm font-medium">Name</p>
-                                  <p className="text-sm text-muted-foreground">{selectedConsultation.name}</p>
+                      <div className="flex items-center space-x-2">
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <Button variant="outline" size="sm" onClick={() => setSelectedConsultation(consultation)}>
+                              <Eye className="h-4 w-4" />
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="sm:max-w-[500px]">
+                            <DialogHeader>
+                              <DialogTitle>Consultation Details</DialogTitle>
+                              <DialogDescription>Complete consultation request information</DialogDescription>
+                            </DialogHeader>
+                            {selectedConsultation && (
+                              <div className="space-y-4">
+                                <div className="grid grid-cols-2 gap-4">
+                                  <div>
+                                    <p className="text-sm font-medium">Name</p>
+                                    <p className="text-sm text-muted-foreground">{selectedConsultation.name}</p>
+                                  </div>
+                                  <div>
+                                    <p className="text-sm font-medium">Email</p>
+                                    <p className="text-sm text-muted-foreground">{selectedConsultation.email}</p>
+                                  </div>
+                                  <div>
+                                    <p className="text-sm font-medium">Phone</p>
+                                    <p className="text-sm text-muted-foreground">{selectedConsultation.phone}</p>
+                                  </div>
+                                  <div>
+                                    <p className="text-sm font-medium">Gender</p>
+                                    <p className="text-sm text-muted-foreground">{selectedConsultation.gender}</p>
+                                  </div>
+                                  <div>
+                                    <p className="text-sm font-medium">Birth Place</p>
+                                    <p className="text-sm text-muted-foreground">{selectedConsultation.birthPlace}</p>
+                                  </div>
+                                  <div>
+                                    <p className="text-sm font-medium">Purpose</p>
+                                    <p className="text-sm text-muted-foreground">{selectedConsultation.service}</p>
+                                  </div>
+                                  <div>
+                                    <p className="text-sm font-medium">Submitted</p>
+                                    <p className="text-sm text-muted-foreground">
+                                      {formatDateTime(selectedConsultation.submittedAt)}
+                                    </p>
+                                  </div>
                                 </div>
                                 <div>
-                                  <p className="text-sm font-medium">Email</p>
-                                  <p className="text-sm text-muted-foreground">{selectedConsultation.email}</p>
-                                </div>
-                                <div>
-                                  <p className="text-sm font-medium">Phone</p>
-                                  <p className="text-sm text-muted-foreground">{selectedConsultation.phone}</p>
-                                </div>
-                                <div>
-                                  <p className="text-sm font-medium">Gender</p>
-                                  <p className="text-sm text-muted-foreground">{selectedConsultation.gender}</p>
-                                </div>
-                                <div>
-                                  <p className="text-sm font-medium">Birth Place</p>
-                                  <p className="text-sm text-muted-foreground">{selectedConsultation.birthPlace}</p>
-                                </div>
-                                <div>
-                                  <p className="text-sm font-medium">Purpose</p>
-                                  <p className="text-sm text-muted-foreground">{selectedConsultation.service}</p>
-                                </div>
-                                <div>
-                                  <p className="text-sm font-medium">Submitted</p>
+                                  <p className="text-sm font-medium">Birth Date & Time</p>
                                   <p className="text-sm text-muted-foreground">
-                                    {formatDateTime(selectedConsultation.submittedAt)}
+                                    {formatDate(selectedConsultation.dateOfBirth)} at{" "}
+                                    {formatTime(selectedConsultation.timeOfBirth)}
                                   </p>
                                 </div>
+                                <div>
+                                  <p className="text-sm font-medium mb-2">Message</p>
+                                  <p className="text-sm text-muted-foreground bg-muted p-3 rounded-md">
+                                    {selectedConsultation.message}
+                                  </p>
+                                </div>
+                                <div className="flex items-center space-x-4">
+                               <div>
+                                   <p className="text-sm font-medium mb-2">Update Status</p>
+                                  <Select
+                                    value={selectedConsultation.status}
+                                    onValueChange={(value) => updateConsultationStatus(selectedConsultation.id, value)}
+                                  >
+                                    <SelectTrigger>
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="pending">Pending</SelectItem>
+                                      <SelectItem value="scheduled">Scheduled</SelectItem>
+                                      <SelectItem value="completed">Completed</SelectItem>
+                                      <SelectItem value="cancelled">Cancelled</SelectItem>
+                                      <SelectItem value="bad">Bad Lead</SelectItem>
+                                      <SelectItem value="good">Good Lead</SelectItem>
+                                      <SelectItem value="future">Keeping this for future</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                               </div>
+                              
+                                </div>
                               </div>
-                              <div>
-                                <p className="text-sm font-medium">Birth Date & Time</p>
-                                <p className="text-sm text-muted-foreground">
-                                  {formatDate(selectedConsultation.dateOfBirth)} at{" "}
-                                  {formatTime(selectedConsultation.timeOfBirth)}
-                                </p>
-                              </div>
-                              <div>
-                                <p className="text-sm font-medium mb-2">Message</p>
-                                <p className="text-sm text-muted-foreground bg-muted p-3 rounded-md">
-                                  {selectedConsultation.message}
-                                </p>
-                              </div>
-                              <div>
-                                <p className="text-sm font-medium mb-2">Update Status</p>
-                                <Select
-                                  value={selectedConsultation.status}
-                                  onValueChange={(value) => updateConsultationStatus(selectedConsultation.id, value)}
-                                >
-                                  <SelectTrigger>
-                                    <SelectValue />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="pending">Pending</SelectItem>
-                                    <SelectItem value="scheduled">Scheduled</SelectItem>
-                                    <SelectItem value="completed">Completed</SelectItem>
-                                    <SelectItem value="cancelled">Cancelled</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                              </div>
-                            </div>
-                          )}
-                        </DialogContent>
-                      </Dialog>
+                              
+                            )}
+                          </DialogContent>
+                        </Dialog>
+
+                        <AlertDialog>
+                          <AlertDialogTrigger asChild>
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              disabled={deletingId === consultation.id}
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                            >
+                              {deletingId === consultation.id ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                              ) : (
+                                <Trash2 className="h-4 w-4" />
+                              )}
+                            </Button>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>Delete Consultation</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                Are you sure you want to delete this consultation call from <strong>{consultation.name}</strong>? 
+                                This action cannot be undone.
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>Cancel</AlertDialogCancel>
+                              <AlertDialogAction
+                                onClick={() => deleteConsultation(consultation.id)}
+                                className="bg-red-600 hover:bg-red-700"
+                              >
+                                Delete
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
