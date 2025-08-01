@@ -1,32 +1,38 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
-import { Search, Download, Plus } from 'lucide-react'
-import { useToast } from "@/hooks/use-toast"
-import { productAPI } from "@/lib/api"
-import ProductsList from "./ProductsList"
-import { useRouter } from "next/navigation"
-import useAccessToken from "@/hooks/useSession"
-import ProductListSkeleton from "@/components/skeleton/productSkeleton"
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Search, Download, Plus } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { productAPI } from "@/lib/api";
+import ProductsList from "./ProductsList";
+import { useRouter } from "next/navigation";
+import useAccessToken from "@/hooks/useSession";
+import ProductListSkeleton from "@/components/skeleton/productSkeleton";
 
 export default function ProductsPage() {
-  const [products, setProducts] = useState([])
-  const [filteredProducts, setFilteredProducts] = useState([])
-  const [searchTerm, setSearchTerm] = useState("")
-  const [loading, setLoading] = useState(true)
-  const { toast } = useToast()
-  const router = useRouter()
-  const { accessToken } = useAccessToken()
+  const [products, setProducts] = useState([]);
+  const [filteredProducts, setFilteredProducts] = useState([]);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
+  const router = useRouter();
+  const { accessToken } = useAccessToken();
 
   // Fetch products from API
   const fetchProducts = async () => {
     try {
-      setLoading(true)
-      const response = await productAPI.getAll(accessToken)
-      console.log(response.data)
+      setLoading(true);
+      const response = await productAPI.getAll(accessToken);
+      console.log(response.data);
 
       // Transform API data to match your table structure
       const transformedProducts = response.data.data.map((product) => ({
@@ -63,61 +69,62 @@ export default function ProductsPage() {
         refractiveIndex: product.refractiveIndex,
         ratings: product.ratings,
         isAvailable: product.isAvailable,
-      }))
+      }));
 
-      setProducts(transformedProducts)
-      setFilteredProducts(transformedProducts)
+      setProducts(transformedProducts);
+      setFilteredProducts(transformedProducts);
     } catch (error) {
-      console.error("Failed to fetch products", error)
-      const errorMessage = error.response?.data?.message || "Failed to fetch products."
+      console.error("Failed to fetch products", error);
+      const errorMessage =
+        error.response?.data?.message || "Failed to fetch products.";
       toast({
         title: "Error",
         description: errorMessage,
         variant: "error",
-      })
-      setProducts([])
-      setFilteredProducts([])
+      });
+      setProducts([]);
+      setFilteredProducts([]);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   useEffect(() => {
-    fetchProducts()
-  }, [])
+    fetchProducts();
+  }, []);
 
   useEffect(() => {
     const filtered = products.filter(
       (product) =>
         product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.category.toLowerCase().includes(searchTerm.toLowerCase()),
-    )
-    setFilteredProducts(filtered)
-  }, [searchTerm, products])
+        product.category.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    setFilteredProducts(filtered);
+  }, [searchTerm, products]);
 
   // Navigate to edit page instead of opening dialog
   const handleEditProduct = (product) => {
-    const id = product.id
-    router.push(`/dashboard/products/edit/${id}`)
-  }
+    const id = product.id;
+    router.push(`/dashboard/products/edit/${id}`);
+  };
 
   const handleDeleteProduct = async (id) => {
     try {
-      await productAPI.delete(id, accessToken)
-      await fetchProducts()
+      await productAPI.delete(id, accessToken);
+      await fetchProducts();
       toast({
         title: "Product deleted",
         description: "Product has been successfully deleted.",
-      })
+      });
     } catch (error) {
-      console.error("Failed to delete product", error)
+      console.error("Failed to delete product", error);
       toast({
         title: "Error",
         description: "Failed to delete product.",
         variant: "destructive",
-      })
+      });
     }
-  }
+  };
 
   const exportToCSV = () => {
     const headers = [
@@ -133,7 +140,7 @@ export default function ProductsPage() {
       "Shape",
       "Weight",
       "Colour",
-    ]
+    ];
     const csvContent = [
       headers.join(","),
       ...filteredProducts.map((product) =>
@@ -150,18 +157,18 @@ export default function ProductsPage() {
           product.shape || "",
           product.weight || "",
           product.colour || "",
-        ].join(","),
+        ].join(",")
       ),
-    ].join("\n")
+    ].join("\n");
 
-    const blob = new Blob([csvContent], { type: "text/csv" })
-    const url = window.URL.createObjectURL(blob)
-    const a = document.createElement("a")
-    a.href = url
-    a.download = "products.csv"
-    a.click()
-    window.URL.revokeObjectURL(url)
-  }
+    const blob = new Blob([csvContent], { type: "text/csv" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "products.csv";
+    a.click();
+    window.URL.revokeObjectURL(url);
+  };
 
   if (loading) {
     return (
@@ -190,7 +197,7 @@ export default function ProductsPage() {
           </CardContent>
         </Card>
       </div>
-    )
+    );
   }
 
   return (
@@ -198,13 +205,17 @@ export default function ProductsPage() {
       <div className="flex items-center justify-between">
         <h2 className="text-3xl font-bold tracking-tight">Products</h2>
         <div className="flex items-center space-x-2">
-          <Button onClick={exportToCSV} variant="outline" className="cursor-pointer">
+          <Button
+            onClick={exportToCSV}
+            variant="outline"
+            className="cursor-pointer"
+          >
             <Download className="mr-2 h-4 w-4 " />
             Export CSV
           </Button>
           <Button
             onClick={() => router.push("/dashboard/products/createProducts")}
-            className="bg-[#BA8E49] hover:bg-[#A67B3E] text-white cursor-pointer"
+            className="bg-[#0C2D48] hover:bg-[#0c2d40] text-white cursor-pointer"
           >
             <Plus className="mr-2 h-4 w-4" />
             Add Product
@@ -230,17 +241,19 @@ export default function ProductsPage() {
             </div>
           </div>
 
-          <ProductsList 
-            products={filteredProducts} 
-            onEdit={handleEditProduct} 
-            onDelete={handleDeleteProduct} 
+          <ProductsList
+            products={filteredProducts}
+            onEdit={handleEditProduct}
+            onDelete={handleDeleteProduct}
           />
           {filteredProducts.length === 0 && !loading && (
             <div className="text-center py-8 space-y-4">
-              <p className="text-gray-500">No products found matching your search.</p>
-              <Button 
-                onClick={fetchProducts} 
-                variant="outline" 
+              <p className="text-gray-500">
+                No products found matching your search.
+              </p>
+              <Button
+                onClick={fetchProducts}
+                variant="outline"
                 className="cursor-pointer"
               >
                 <Search className="mr-2 h-4 w-4" />
@@ -251,5 +264,5 @@ export default function ProductsPage() {
         </CardContent>
       </Card>
     </div>
-  )
+  );
 }

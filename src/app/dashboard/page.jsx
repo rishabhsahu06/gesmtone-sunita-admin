@@ -1,48 +1,55 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Overview } from "@/components/overview"
-import { RecentSales } from "@/components/recent-sales"
-import { Package, ShoppingCart, Phone, TrendingUp } from "lucide-react"
-import { analyticsAPI } from "@/lib/api"
-import useAccessToken from "@/hooks/useSession"
+import { useState, useEffect } from "react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Overview } from "@/components/overview";
+import { RecentSales } from "@/components/recent-sales";
+import { Package, ShoppingCart, Phone, TrendingUp } from "lucide-react";
+import { analyticsAPI } from "@/lib/api";
+import useAccessToken from "@/hooks/useSession";
 
 // Mock analyticsAPI (replace with your actual API)
 
-
 export default function DashboardPage() {
-  const [dashboardData, setDashboardData] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
- const { accessToken } = useAccessToken()
+  const [dashboardData, setDashboardData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const { accessToken } = useAccessToken();
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        setLoading(true)
+        setLoading(true);
         // Replace with your actual access token logic
-        const response = await analyticsAPI.getSalesData(accessToken)
+        const response = await analyticsAPI.getSalesData(accessToken);
 
         if (response.data.success) {
-          setDashboardData(response.data.data)
+          setDashboardData(response.data.data);
         } else {
-          setError("Failed to fetch dashboard data")
+          setError("Failed to fetch dashboard data");
         }
       } catch (err) {
-        setError("Error fetching dashboard data: " + err.message)
+        setError("Error fetching dashboard data: " + err.message);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchDashboardData()
-  }, [])
+    fetchDashboardData();
+  }, []);
 
   if (loading) {
     return (
       <div className="flex-1 space-y-4">
         <div className="flex items-center justify-between space-y-2">
-          <h2 className="text-3xl font-bold tracking-tight">Dashboard Overview</h2>
+          <h2 className="text-3xl font-bold  tracking-tight">
+            Dashboard Overview
+          </h2>
         </div>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
           {[...Array(4)].map((_, i) => (
@@ -59,35 +66,43 @@ export default function DashboardPage() {
           ))}
         </div>
       </div>
-    )
+    );
   }
 
   if (error) {
     return (
       <div className="flex-1 space-y-4">
         <div className="flex items-center justify-between space-y-2">
-          <h2 className="text-3xl font-bold tracking-tight">Dashboard Overview</h2>
+          <h2 className="text-3xl font-bold tracking-tight">
+            Dashboard Overview
+          </h2>
         </div>
         <div className="text-red-500 text-center p-4">{error}</div>
       </div>
-    )
+    );
   }
 
-  const { overview, growth, recentOrders, dailyStats } = dashboardData
+  const { overview, growth, recentOrders, dailyStats } = dashboardData;
 
   return (
     <div className="flex-1 space-y-4">
       <div className="flex items-center justify-between space-y-2">
-        <h2 className="text-3xl font-bold tracking-tight">Dashboard Overview</h2>
+        <h2 className="text-3xl font-bold tracking-tight">
+          Dashboard Overview
+        </h2>
       </div>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Products</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Total Products
+            </CardTitle>
             <Package className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{overview.totalProducts.toLocaleString()}</div>
+            <div className="text-2xl font-bold">
+              {overview.totalProducts.toLocaleString()}
+            </div>
             <p className="text-xs text-muted-foreground">
               {growth.ordersGrowthRate > 0 ? "+" : ""}
               {growth.ordersGrowthRate}% from last year
@@ -100,7 +115,9 @@ export default function DashboardPage() {
             <ShoppingCart className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{overview.totalOrders.toLocaleString()}</div>
+            <div className="text-2xl font-bold">
+              {overview.totalOrders.toLocaleString()}
+            </div>
             <p className="text-xs text-muted-foreground">
               {growth.ordersGrowthRate > 0 ? "+" : ""}
               {growth.ordersGrowthRate}% from last year
@@ -113,8 +130,12 @@ export default function DashboardPage() {
             <Phone className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{overview.totalBookingCalls}</div>
-            <p className="text-xs text-muted-foreground">Booking calls this period</p>
+            <div className="text-2xl font-bold">
+              {overview.totalBookingCalls}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Booking calls this period
+            </p>
           </CardContent>
         </Card>
         <Card>
@@ -123,7 +144,9 @@ export default function DashboardPage() {
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">₹{overview.totalRevenue.toLocaleString()}</div>
+            <div className="text-2xl font-bold">
+              ₹{overview.totalRevenue.toLocaleString()}
+            </div>
             <p className="text-xs text-muted-foreground">
               {growth.revenueGrowthRate > 0 ? "+" : ""}
               {growth.revenueGrowthRate}% from last year
@@ -143,7 +166,9 @@ export default function DashboardPage() {
         <Card className="col-span-3">
           <CardHeader>
             <CardTitle>Recent Sales</CardTitle>
-            <CardDescription>You made {overview.monthlyOrders} sales this month.</CardDescription>
+            <CardDescription>
+              You made {overview.monthlyOrders} sales this month.
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <RecentSales data={recentOrders} />
@@ -151,5 +176,5 @@ export default function DashboardPage() {
         </Card>
       </div>
     </div>
-  )
+  );
 }

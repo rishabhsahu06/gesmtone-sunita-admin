@@ -1,24 +1,33 @@
-"use client"
+"use client";
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Label } from "@/components/ui/label"
-import { Input } from "@/components/ui/input"
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 
 export default function PhysicalPropertiesForm({ product, onChange }) {
   const handleChange = (field, value) => {
-    onChange({ ...product, [field]: value })
-  }
+    onChange({ ...product, [field]: value });
+  };
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-[#BA8E49]">Physical Properties</CardTitle>
+        <CardTitle className="text-[#0C2D48]">Physical Properties</CardTitle>
         <CardDescription>Gemstone specifications</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="space-y-2">
-            <Label htmlFor="weight" className="text-sm font-medium text-gray-700">
+            <Label
+              htmlFor="weight"
+              className="text-sm font-medium text-gray-700"
+            >
               Weight (g) *
             </Label>
             <Input
@@ -28,11 +37,14 @@ export default function PhysicalPropertiesForm({ product, onChange }) {
               value={product.weight}
               onChange={(e) => handleChange("weight", e.target.value)}
               placeholder="1.5g"
-              className="focus:ring-[#BA8E49] focus:border-[#BA8E49]"
+              className="focus:ring-[#0C2D48] focus:border-[#0C2D48]"
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="weightRatti" className="text-sm font-medium text-gray-700">
+            <Label
+              htmlFor="weightRatti"
+              className="text-sm font-medium text-gray-700"
+            >
               Weight (Ratti)
             </Label>
             <Input
@@ -42,11 +54,14 @@ export default function PhysicalPropertiesForm({ product, onChange }) {
               value={product.weightRatti}
               onChange={(e) => handleChange("weightRatti", e.target.value)}
               placeholder="4.5 Ratti"
-              className="focus:ring-[#BA8E49] focus:border-[#BA8E49]"
+              className="focus:ring-[#0C2D48] focus:border-[#0C2D48]"
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="weightCarat" className="text-sm font-medium text-gray-700">
+            <Label
+              htmlFor="weightCarat"
+              className="text-sm font-medium text-gray-700"
+            >
               Weight (Carat)
             </Label>
             <Input
@@ -56,13 +71,16 @@ export default function PhysicalPropertiesForm({ product, onChange }) {
               value={product.weightCarat}
               onChange={(e) => handleChange("weightCarat", e.target.value)}
               placeholder="4.2 Carat"
-              className="focus:ring-[#BA8E49] focus:border-[#BA8E49]"
+              className="focus:ring-[#0C2D48] focus:border-[#0C2D48]"
             />
           </div>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="space-y-2">
-            <Label htmlFor="shape" className="text-sm font-medium text-gray-700">
+            <Label
+              htmlFor="shape"
+              className="text-sm font-medium text-gray-700"
+            >
               Shape
             </Label>
             <Input
@@ -70,11 +88,14 @@ export default function PhysicalPropertiesForm({ product, onChange }) {
               value={product.shape}
               onChange={(e) => handleChange("shape", e.target.value)}
               placeholder="e.g., Round, Oval"
-              className="focus:ring-[#BA8E49] focus:border-[#BA8E49]"
+              className="focus:ring-[#0C2D48] focus:border-[#0C2D48]"
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="colour" className="text-sm font-medium text-gray-700">
+            <Label
+              htmlFor="colour"
+              className="text-sm font-medium text-gray-700"
+            >
               Colour
             </Label>
             <Input
@@ -82,11 +103,14 @@ export default function PhysicalPropertiesForm({ product, onChange }) {
               value={product.colour}
               onChange={(e) => handleChange("colour", e.target.value)}
               placeholder="e.g., Deep Blue"
-              className="focus:ring-[#BA8E49] focus:border-[#BA8E49]"
+              className="focus:ring-[#0C2D48] focus:border-[#0C2D48]"
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="specificGravity" className="text-sm font-medium text-gray-700">
+            <Label
+              htmlFor="specificGravity"
+              className="text-sm font-medium text-gray-700"
+            >
               Specific Gravity
             </Label>
             <Input
@@ -96,11 +120,11 @@ export default function PhysicalPropertiesForm({ product, onChange }) {
               value={product.specificGravity}
               onChange={(e) => handleChange("specificGravity", e.target.value)}
               placeholder="e.g 3.5"
-              className="focus:ring-[#BA8E49] focus:border-[#BA8E49]"
+              className="focus:ring-[#0C2D48] focus:border-[#0C2D48]"
             />
           </div>
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
