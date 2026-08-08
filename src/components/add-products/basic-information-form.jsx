@@ -26,7 +26,7 @@ export default function BasicInformationForm({ product, onChange }) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
             <Label htmlFor="name" className="text-sm font-medium text-gray-700">
-              Product Name *
+              Product Name <span className="text-red-500">*</span>
             </Label>
             <Input
               id="name"
@@ -42,7 +42,7 @@ export default function BasicInformationForm({ product, onChange }) {
               htmlFor="stock"
               className="text-sm font-medium text-gray-700"
             >
-              Stock Quantity *
+              Stock Quantity <span className="text-red-500">*</span>
             </Label>
             <Input
               id="stock"
@@ -60,7 +60,7 @@ export default function BasicInformationForm({ product, onChange }) {
             htmlFor="description"
             className="text-sm font-medium text-gray-700"
           >
-            Description
+            Description <span className="text-red-500">*</span>
           </Label>
           <Textarea
             id="description"

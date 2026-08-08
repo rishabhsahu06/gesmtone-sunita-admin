@@ -148,7 +148,9 @@ export default function ImageUploadSection({ product, onChange }) {
   return (
     <Card className="sticky top-8">
       <CardHeader>
-        <CardTitle className="text-[#0C2D48]">Product Images</CardTitle>
+        <CardTitle className="text-[#0C2D48]">
+          Product Images <span className="text-red-500">*</span>
+        </CardTitle>
         <CardDescription>
           Upload high-quality images of your product (one at a time)
         </CardDescription>

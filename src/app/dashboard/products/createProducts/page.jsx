@@ -79,32 +79,37 @@ export default function CreateProductPage() {
       }
 
       const productData = {
-        name: newProduct.name,
-        description: newProduct.description,
-        originalPrice: Number.parseFloat(newProduct.originalPrice),
-        discountedPrice: newProduct.discountedPrice ? Number.parseFloat(newProduct.discountedPrice) : undefined,
-        primaryCategory: newProduct.primaryCategory,
-        primaryCategoryImage: newProduct.primaryCategoryImage,
-        secondaryCategory: newProduct.secondaryCategory,
-        stock: Number.parseInt(newProduct.stock),
-        weight: newProduct.weight ? Number.parseFloat(newProduct.weight) : undefined,
-        weightRatti: newProduct.weightRatti ? Number.parseFloat(newProduct.weightRatti) : undefined,
-        weightCarat: newProduct.weightCarat ? Number.parseFloat(newProduct.weightCarat) : undefined,
-        shape: newProduct.shape,
-        origin: newProduct.origin,
-        certification: newProduct.certification,
-        poojaEnergization: newProduct.poojaEnergization,
-        colour: newProduct.colour,
-        treatment: newProduct.treatment,
-        treatmentType: newProduct.treatmentType,
-        composition: newProduct.composition,
-        returnPolicy: newProduct.returnPolicy,
-        dimensionType: newProduct.dimensionType,
+        name: newProduct.name?.trim() || "New Gemstone",
+        description: newProduct.description?.trim() || newProduct.name?.trim() || "Gemstone product details",
+        originalPrice: newProduct.originalPrice !== "" && newProduct.originalPrice !== undefined && !isNaN(Number(newProduct.originalPrice)) ? Number.parseFloat(newProduct.originalPrice) : 0,
+        discountedPrice: newProduct.discountedPrice !== "" && newProduct.discountedPrice !== undefined && !isNaN(Number(newProduct.discountedPrice)) ? Number.parseFloat(newProduct.discountedPrice) : undefined,
+        primaryCategory: newProduct.primaryCategory?.trim() || "pink-sapphire",
+        primaryCategoryImage: newProduct.primaryCategoryImage?.trim() || undefined,
+        secondaryCategory: newProduct.secondaryCategory?.trim() || undefined,
+        stock: newProduct.stock !== "" && newProduct.stock !== undefined && !isNaN(Number(newProduct.stock)) ? Number.parseInt(newProduct.stock) : 1,
+        weight: newProduct.weight !== "" && newProduct.weight !== undefined && !isNaN(Number(newProduct.weight)) ? Number.parseFloat(newProduct.weight) : undefined,
+        weightRatti: newProduct.weightRatti !== "" && newProduct.weightRatti !== undefined && !isNaN(Number(newProduct.weightRatti)) ? Number.parseFloat(newProduct.weightRatti) : undefined,
+        weightCarat: newProduct.weightCarat !== "" && newProduct.weightCarat !== undefined && !isNaN(Number(newProduct.weightCarat)) ? Number.parseFloat(newProduct.weightCarat) : undefined,
+        shape: newProduct.shape?.trim() || undefined,
+        origin: newProduct.origin?.trim() || undefined,
+        certification: newProduct.certification?.trim() || undefined,
+        poojaEnergization: newProduct.poojaEnergization?.trim() || undefined,
+        colour: newProduct.colour?.trim() || undefined,
+        treatment: newProduct.treatment?.trim() || undefined,
+        treatmentType: newProduct.treatmentType?.trim() || undefined,
+        composition: newProduct.composition?.trim() || undefined,
+        returnPolicy: newProduct.returnPolicy?.trim() || undefined,
+        dimensionType: newProduct.dimensionType?.trim() || undefined,
         dimensions: prepareDimensions(),
-        specificGravity: newProduct.specificGravity ? Number.parseFloat(newProduct.specificGravity) : undefined,
+        specificGravity: newProduct.specificGravity !== "" && newProduct.specificGravity !== undefined && !isNaN(Number(newProduct.specificGravity)) ? Number.parseFloat(newProduct.specificGravity) : undefined,
         isAvailable: newProduct.isAvailable,
-        images: newProduct.images,
-        productBenefits: newProduct.productBenefits,
+        images: newProduct.images?.length > 0 ? newProduct.images : [
+          {
+            url: "https://res.cloudinary.com/dtcq8v9za/image/upload/v1749552629/gemstone-uploads/file_kfzeam.webp",
+            alt: newProduct.name?.trim() || "Gemstone Image"
+          }
+        ],
+        productBenefits: newProduct.productBenefits?.length > 0 ? newProduct.productBenefits : undefined,
       }
 
       // Remove undefined values to clean up the payload
@@ -145,7 +150,7 @@ export default function CreateProductPage() {
         onBack={() => router.back()}
         onCancel={() => router.back()}
         onSave={handleAddProduct}
-        canSave={!loading && newProduct.name && newProduct.originalPrice}
+        canSave={!loading && Boolean(newProduct.name?.trim())}
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

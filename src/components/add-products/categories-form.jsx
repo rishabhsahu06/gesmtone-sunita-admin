@@ -230,7 +230,7 @@ export default function CategoriesForm({ product, onChange }) {
               htmlFor="primaryCategory"
               className="text-sm font-medium text-gray-700"
             >
-              Primary Category (e.g. Blue Sapphire, Ruby, etc) *
+              Primary Category (e.g. Blue Sapphire, Ruby, etc) <span className="text-red-500">*</span>
             </Label>
             <Select
               value={product.primaryCategory}

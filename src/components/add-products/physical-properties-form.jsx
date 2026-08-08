@@ -28,7 +28,7 @@ export default function PhysicalPropertiesForm({ product, onChange }) {
               htmlFor="weight"
               className="text-sm font-medium text-gray-700"
             >
-              Weight (g) *
+              Weight (g) <span className="text-red-500">*</span>
             </Label>
             <Input
               id="weight"

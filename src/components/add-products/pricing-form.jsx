@@ -28,7 +28,7 @@ export default function PricingForm({ product, onChange }) {
               htmlFor="originalPrice"
               className="text-sm font-medium text-gray-700"
             >
-              Original Price *
+              Original Price <span className="text-red-500">*</span>
             </Label>
             <Input
               id="originalPrice"
