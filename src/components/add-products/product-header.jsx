@@ -9,6 +9,9 @@ export default function ProductHeader({
   onCancel,
   onSave,
   canSave,
+  title = "Create New Product",
+  subtitle = "Add a new gemstone product to your inventory",
+  saveLabel = "Create Product",
 }) {
   return (
     <div className="bg-white border-b border-gray-200">
@@ -26,10 +29,10 @@ export default function ProductHeader({
             </Button>
             <div>
               <h1 className="text-2xl font-bold text-gray-900">
-                Create New Product
+                {title}
               </h1>
               <p className="text-sm text-gray-500">
-                Add a new gemstone product to your inventory
+                {subtitle}
               </p>
             </div>
           </div>
@@ -48,7 +51,7 @@ export default function ProductHeader({
                   Creating...
                 </>
               ) : (
-                "Create Product"
+                saveLabel
               )}
             </Button>
           </div>

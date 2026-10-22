@@ -31,7 +31,9 @@ export default function ProductsPage() {
   const fetchProducts = async () => {
     try {
       setLoading(true);
-      const response = await productAPI.getAll(accessToken);
+      const response = await productAPI.getAll(accessToken, {
+        productType: "gemstone",
+      });
       console.log(response.data);
 
       // Transform API data to match your table structure

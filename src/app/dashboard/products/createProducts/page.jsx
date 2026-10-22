@@ -79,6 +79,7 @@ export default function CreateProductPage() {
       }
 
       const productData = {
+        productType: "gemstone",
         name: newProduct.name?.trim() || "New Gemstone",
         description: newProduct.description?.trim() || newProduct.name?.trim() || "Gemstone product details",
         originalPrice: newProduct.originalPrice !== "" && newProduct.originalPrice !== undefined && !isNaN(Number(newProduct.originalPrice)) ? Number.parseFloat(newProduct.originalPrice) : 0,

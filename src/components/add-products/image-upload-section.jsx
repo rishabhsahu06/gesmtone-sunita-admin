@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Upload, X, ImageIcon, Loader2 } from "lucide-react";
 import useAccessToken from "@/hooks/useSession";
+import { compressImage } from "@/lib/compress-image";
 
 export default function ImageUploadSection({ product, onChange }) {
   const [uploadingImage, setUploadingImage] = useState(false);
@@ -37,11 +38,11 @@ export default function ImageUploadSection({ product, onChange }) {
       return;
     }
 
-    // Validate file size (10MB limit)
-    if (file.size > 10 * 1024 * 1024) {
+    // Validate file size before client-side compression
+    if (file.size > 20 * 1024 * 1024) {
       toast({
         title: "File too large",
-        description: "Please select an image smaller than 10MB.",
+        description: "Please select an image smaller than 20MB.",
         variant: "destructive",
       });
       return;
@@ -60,8 +61,9 @@ export default function ImageUploadSection({ product, onChange }) {
     setUploadingImage(true);
 
     try {
+      const optimizedFile = await compressImage(selectedFile);
       const formData = new FormData();
-      formData.append("media", selectedFile);
+      formData.append("media", optimizedFile);
 
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API_URL}/upload-media`,
@@ -74,11 +76,15 @@ export default function ImageUploadSection({ product, onChange }) {
         }
       );
 
-      if (!response.ok) {
-        throw new Error(`Upload failed: ${response.statusText}`);
-      }
+      const result = await response.json().catch(() => ({}));
 
-      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(
+          result.message ||
+            result.error ||
+            `Upload failed (${response.status}). Try a smaller JPG or PNG.`
+        );
+      }
 
       if (result.success && result.data?.url) {
         // Create image object with URL and alt text

@@ -4,9 +4,13 @@ import api from "./axiosInstanc"
 
 // API functions
 export const productAPI = {
-  getAll: (token) => api.get("/products", {
+  getAll: (token, params = {}) => api.get("/products", {
     headers: {
       Authorization: `Bearer ${token}`,
+    },
+    params: {
+      limit: 100000,
+      ...params,
     },
   }),
   getById: (id, token) => api.get(`/products/${id}`, {

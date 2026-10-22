@@ -10,6 +10,7 @@ import {
   FileText,
   LogOut,
   BookHeart,
+  Gem,
 } from "lucide-react";
 import {
   Sidebar,
@@ -43,6 +44,11 @@ const items = [
     title: "Products",
     url: "/dashboard/products",
     icon: Package,
+  },
+  {
+    title: "Jewellery",
+    url: "/dashboard/jewellery",
+    icon: Gem,
   },
   {
     title: "Orders",
@@ -104,7 +110,14 @@ export function AppSidebar() {
             <SidebarMenu>
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
-                  <SidebarMenuButton asChild isActive={pathname === item.url}>
+                  <SidebarMenuButton
+                    asChild
+                    isActive={
+                      item.url === "/dashboard"
+                        ? pathname === "/dashboard"
+                        : pathname === item.url || pathname.startsWith(`${item.url}/`)
+                    }
+                  >
                     {
                       /* If the item is "Logout", handle sign out differently */
                       item.title === "Logout" ? (
