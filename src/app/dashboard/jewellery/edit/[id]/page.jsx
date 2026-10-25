@@ -200,7 +200,7 @@ export default function EditJewelleryPage() {
             <JewelleryDetailsForm product={item} onChange={setItem} />
           </div>
           <div className="lg:col-span-1">
-            <ImageUploadSection product={item} onChange={setItem} />
+            <ImageUploadSection product={item} onChange={setItem} maxImages={4} />
           </div>
         </div>
       </div>

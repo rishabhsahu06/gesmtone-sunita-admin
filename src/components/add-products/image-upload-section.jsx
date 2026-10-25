@@ -16,107 +16,145 @@ import { Upload, X, ImageIcon, Loader2 } from "lucide-react";
 import useAccessToken from "@/hooks/useSession";
 import { compressImage } from "@/lib/compress-image";
 
-export default function ImageUploadSection({ product, onChange }) {
+export default function ImageUploadSection({ product, onChange, maxImages }) {
   const [uploadingImage, setUploadingImage] = useState(false);
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [previewUrl, setPreviewUrl] = useState(null);
+  const [selectedFiles, setSelectedFiles] = useState([]);
   const [altText, setAltText] = useState("");
   const { toast } = useToast();
   const { accessToken } = useAccessToken();
 
+  const uploadedCount = product.images?.length || 0;
+  const pendingCount = selectedFiles.length;
+  const slotsLeft =
+    typeof maxImages === "number"
+      ? Math.max(0, maxImages - uploadedCount - pendingCount)
+      : null;
+  const atLimit = slotsLeft === 0;
+
+  const clearSelectedFiles = () => {
+    setSelectedFiles((current) => {
+      current.forEach((item) => URL.revokeObjectURL(item.previewUrl));
+      return [];
+    });
+    setAltText("");
+    const fileInput = document.getElementById("image-upload");
+    if (fileInput) fileInput.value = "";
+  };
+
   const handleFileSelect = (event) => {
-    const file = event.target.files[0];
-    if (!file) return;
+    const incoming = Array.from(event.target.files || []);
+    event.target.value = "";
+    if (!incoming.length) return;
 
-    // Validate file type
-    if (!file.type.startsWith("image/")) {
+    const room =
+      typeof maxImages === "number"
+        ? maxImages - uploadedCount - pendingCount
+        : incoming.length;
+
+    if (room <= 0) {
       toast({
-        title: "Invalid file type",
-        description: "Please select an image file (PNG, JPG, GIF).",
+        title: "Photo limit reached",
+        description: `You can add up to ${maxImages} photos.`,
         variant: "destructive",
       });
       return;
     }
 
-    // Validate file size before client-side compression
-    if (file.size > 20 * 1024 * 1024) {
-      toast({
-        title: "File too large",
-        description: "Please select an image smaller than 20MB.",
-        variant: "destructive",
+    const accepted = [];
+    for (const file of incoming.slice(0, room)) {
+      if (!file.type.startsWith("image/")) {
+        toast({
+          title: "Invalid file type",
+          description: `${file.name} is not an image.`,
+          variant: "destructive",
+        });
+        continue;
+      }
+      if (file.size > 20 * 1024 * 1024) {
+        toast({
+          title: "File too large",
+          description: `${file.name} is larger than 20MB.`,
+          variant: "destructive",
+        });
+        continue;
+      }
+      accepted.push({
+        file,
+        previewUrl: URL.createObjectURL(file),
       });
-      return;
     }
 
-    setSelectedFile(file);
+    if (incoming.length > room) {
+      toast({
+        title: "Some photos were skipped",
+        description: `Only ${room} more photo${room === 1 ? "" : "s"} can be added.`,
+      });
+    }
 
-    // Create preview URL
-    const url = URL.createObjectURL(file);
-    setPreviewUrl(url);
+    if (accepted.length) {
+      setSelectedFiles((current) => [...current, ...accepted]);
+    }
   };
 
   const handleUpload = async () => {
-    if (!selectedFile || !accessToken) return;
+    if (!selectedFiles.length || !accessToken) return;
 
     setUploadingImage(true);
 
     try {
-      const optimizedFile = await compressImage(selectedFile);
-      const formData = new FormData();
-      formData.append("media", optimizedFile);
+      const uploaded = [];
 
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/upload-media`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-          body: formData,
-        }
-      );
+      for (let index = 0; index < selectedFiles.length; index += 1) {
+        const { file } = selectedFiles[index];
+        const optimizedFile = await compressImage(file);
+        const formData = new FormData();
+        formData.append("media", optimizedFile);
 
-      const result = await response.json().catch(() => ({}));
-
-      if (!response.ok) {
-        throw new Error(
-          result.message ||
-            result.error ||
-            `Upload failed (${response.status}). Try a smaller JPG or PNG.`
+        const response = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL}/upload-media`,
+          {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+            body: formData,
+          }
         );
-      }
 
-      if (result.success && result.data?.url) {
-        // Create image object with URL and alt text
-        const imageObject = {
-          url: result.data.url,
-          alt: altText.trim() || `Product image ${product.images.length + 1}`,
-        };
+        const result = await response.json().catch(() => ({}));
 
-        // Add the new image object to the product's images array
-        onChange({
-          ...product,
-          images: [...product.images, imageObject],
-        });
-
-        // Reset the file selection and alt text
-        setSelectedFile(null);
-        setPreviewUrl(null);
-        setAltText("");
-
-        // Reset the file input
-        const fileInput = document.getElementById("image-upload");
-        if (fileInput) {
-          fileInput.value = "";
+        if (!response.ok || !result.success || !result.data?.url) {
+          throw new Error(
+            result.message ||
+              result.error ||
+              `Upload failed (${response.status}). Try a smaller JPG or PNG.`
+          );
         }
 
-        toast({
-          title: "Image uploaded",
-          description: "Image has been successfully uploaded.",
+        const imageNumber = product.images.length + index;
+        uploaded.push({
+          url: result.data.url,
+          alt:
+            imageNumber === 0
+              ? altText.trim() || "Main photo"
+              : `Phase ${imageNumber + 1}`,
         });
-      } else {
-        throw new Error("Upload response was not successful");
       }
+
+      onChange({
+        ...product,
+        images: [...product.images, ...uploaded],
+      });
+
+      clearSelectedFiles();
+
+      toast({
+        title: uploaded.length === 1 ? "Image uploaded" : "Images uploaded",
+        description:
+          uploaded.length === 1
+            ? "Image has been successfully uploaded."
+            : `${uploaded.length} photos have been uploaded.`,
+      });
     } catch (error) {
       console.error("Image upload failed:", error);
       toast({
@@ -130,18 +168,7 @@ export default function ImageUploadSection({ product, onChange }) {
   };
 
   const clearSelection = () => {
-    setSelectedFile(null);
-    setAltText("");
-    if (previewUrl) {
-      URL.revokeObjectURL(previewUrl);
-      setPreviewUrl(null);
-    }
-
-    // Reset the file input
-    const fileInput = document.getElementById("image-upload");
-    if (fileInput) {
-      fileInput.value = "";
-    }
+    clearSelectedFiles();
   };
 
   const removeImage = (index) => {
@@ -158,7 +185,9 @@ export default function ImageUploadSection({ product, onChange }) {
           Product Images <span className="text-red-500">*</span>
         </CardTitle>
         <CardDescription>
-          Upload high-quality images of your product (one at a time)
+          {typeof maxImages === "number"
+            ? `Add up to ${maxImages} photos. ${uploadedCount} of ${maxImages} uploaded.`
+            : "Upload high-quality images of your product (one at a time)"}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -167,13 +196,19 @@ export default function ImageUploadSection({ product, onChange }) {
           <input
             type="file"
             accept="image/*"
+            multiple={typeof maxImages === "number"}
             onChange={handleFileSelect}
             className="hidden"
             id="image-upload"
-            disabled={uploadingImage}
+            disabled={uploadingImage || atLimit}
           />
 
-          {!selectedFile ? (
+          {selectedFiles.length === 0 ? (
+            atLimit ? (
+              <div className="text-sm text-gray-600">
+                All {maxImages} photo slots are filled. Remove one to add another.
+              </div>
+            ) : (
             <label
               htmlFor="image-upload"
               className="cursor-pointer flex flex-col items-center space-y-2"
@@ -181,69 +216,86 @@ export default function ImageUploadSection({ product, onChange }) {
               <Upload className="h-8 w-8 text-gray-400" />
               <div className="text-sm text-gray-600">
                 <span className="font-medium text-[#0C2D48]">
-                  Click to select image
+                  {typeof maxImages === "number"
+                    ? `Click to select up to ${slotsLeft} photo${slotsLeft === 1 ? "" : "s"}`
+                    : "Click to select image"}
                 </span>
               </div>
               <div className="text-xs text-gray-500">
                 PNG, JPG, GIF up to 10MB
               </div>
             </label>
+            )
           ) : (
             <div className="space-y-4">
-              {/* Preview of selected image */}
-              {previewUrl && (
-                <div className="relative inline-block">
-                  <img
-                    src={previewUrl}
-                    alt="Selected image preview"
-                    className="max-w-full max-h-32 rounded-lg object-cover"
-                  />
-                  <button
-                    onClick={clearSelection}
-                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
-                    disabled={uploadingImage}
+              <div className="flex flex-wrap justify-center gap-3">
+                {selectedFiles.map((item, index) => {
+                  const imageNumber = uploadedCount + index;
+                  const phaseLabel =
+                    imageNumber === 0 ? "Main" : `Phase ${imageNumber + 1}`;
+                  return (
+                  <div key={item.previewUrl} className="relative">
+                    <img
+                      src={item.previewUrl}
+                      alt={item.file.name}
+                      className="h-20 w-20 rounded-lg object-cover"
+                    />
+                    <span className="mt-1 block text-[10px] font-medium text-gray-500">
+                      {phaseLabel}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        URL.revokeObjectURL(item.previewUrl);
+                        setSelectedFiles((current) =>
+                          current.filter((_, itemIndex) => itemIndex !== index)
+                        );
+                      }}
+                      className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors"
+                      disabled={uploadingImage}
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </div>
+                  );
+                })}
+              </div>
+
+              <div className="text-sm text-gray-600">
+                <p className="font-medium">
+                  {selectedFiles.length} photo{selectedFiles.length === 1 ? "" : "s"} selected
+                </p>
+              </div>
+
+              {uploadedCount === 0 && (
+                <div className="space-y-2 text-left">
+                  <Label
+                    htmlFor="alt-text"
+                    className="text-sm font-medium text-gray-700"
                   >
-                    <X className="h-3 w-3" />
-                  </button>
+                    Main photo description
+                  </Label>
+                  <Input
+                    id="alt-text"
+                    type="text"
+                    placeholder="Short description for the first photo"
+                    value={altText}
+                    onChange={(e) => setAltText(e.target.value)}
+                    disabled={uploadingImage}
+                    className="text-sm"
+                  />
+                  <p className="text-xs text-gray-500">
+                    Only the first photo uses this description. Extra photos are saved as Phase 2, Phase 3, and Phase 4.
+                  </p>
                 </div>
               )}
 
-              <div className="text-sm text-gray-600">
-                <p className="font-medium">{selectedFile.name}</p>
-                <p className="text-xs text-gray-500">
-                  {(selectedFile.size / (1024 * 1024)).toFixed(2)} MB
-                </p>
-              </div>
-
-              {/* Alt Text Input */}
-              <div className="space-y-2 text-left">
-                <Label
-                  htmlFor="alt-text"
-                  className="text-sm font-medium text-gray-700"
-                >
-                  Image Description (Alt Text)
-                </Label>
-                <Input
-                  id="alt-text"
-                  type="text"
-                  placeholder="e.g., Ruby front view, Sapphire side angle"
-                  value={altText}
-                  onChange={(e) => setAltText(e.target.value)}
-                  disabled={uploadingImage}
-                  className="text-sm"
-                />
-                <p className="text-xs text-gray-500">
-                  Optional: Describe the image for better accessibility and
-                  organization
-                </p>
-              </div>
-
-              {/* Upload Button */}
-              <div className="flex gap-2 justify-center">
+              <div className="flex flex-col gap-2">
                 <Button
+                  type="button"
                   onClick={handleUpload}
                   disabled={uploadingImage || !accessToken}
-                  className="bg-[#0C2D48] hover:bg-[#A67B3C] text-white"
+                  className="w-full bg-[#0C2D48] hover:bg-[#A67B3C] text-white"
                 >
                   {uploadingImage ? (
                     <>
@@ -253,15 +305,19 @@ export default function ImageUploadSection({ product, onChange }) {
                   ) : (
                     <>
                       <Upload className="h-4 w-4 mr-2" />
-                      Upload Image
+                      {selectedFiles.length > 1
+                        ? `Upload ${selectedFiles.length} photos`
+                        : "Upload Image"}
                     </>
                   )}
                 </Button>
 
                 <Button
+                  type="button"
                   variant="outline"
                   onClick={clearSelection}
                   disabled={uploadingImage}
+                  className="w-full"
                 >
                   Cancel
                 </Button>
@@ -274,7 +330,8 @@ export default function ImageUploadSection({ product, onChange }) {
         {product.images.length > 0 && (
           <div className="space-y-3">
             <h4 className="text-sm font-medium text-gray-700">
-              Uploaded Images ({product.images.length})
+              Uploaded Images ({product.images.length}
+              {typeof maxImages === "number" ? ` / ${maxImages}` : ""})
             </h4>
             <div className="grid grid-cols-2 gap-3">
               {product.images.map((imageObj, index) => (
@@ -296,11 +353,9 @@ export default function ImageUploadSection({ product, onChange }) {
                     <X className="h-3 w-3" />
                   </button>
                   {/* Show alt text on hover or below image */}
-                  {imageObj.alt && (
-                    <div className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-75 text-white text-xs p-1 opacity-0 group-hover:opacity-100 transition-opacity rounded-b-lg">
-                      {imageObj.alt}
-                    </div>
-                  )}
+                  <p className="mt-1 text-center text-[10px] font-medium text-gray-500">
+                    {index === 0 ? "Main" : `Phase ${index + 1}`}
+                  </p>
                 </div>
               ))}
             </div>
@@ -308,7 +363,7 @@ export default function ImageUploadSection({ product, onChange }) {
         )}
 
         {/* No Images State */}
-        {product.images.length === 0 && !selectedFile && (
+        {product.images.length === 0 && selectedFiles.length === 0 && (
           <div className="text-center py-8">
             <ImageIcon className="h-12 w-12 text-gray-300 mx-auto mb-2" />
             <p className="text-sm text-gray-500">No images uploaded yet</p>
