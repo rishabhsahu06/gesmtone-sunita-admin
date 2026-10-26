@@ -41,7 +41,7 @@ const items = [
     icon: BarChart3,
   },
   {
-    title: "Products",
+    title: "Stones",
     url: "/dashboard/products",
     icon: Package,
   },

@@ -441,17 +441,17 @@ export default function ProductsList({
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2 text-red-600">
               <AlertTriangle className="h-5 w-5" />
-              Confirm Product Deletion
+              Confirm Stone Deletion
             </AlertDialogTitle>
             <AlertDialogDescription asChild>
               <div className="space-y-4">
                 <p className="text-sm text-muted-foreground">
-                  Are you sure you want to delete this product? This action cannot be undone and all related data will be permanently removed.
+                  Are you sure you want to delete this stone? This action cannot be undone.
                 </p>
                 
                 {productToDelete && (
                   <div className="bg-muted p-4 rounded-lg space-y-3">
-                    <h4 className="font-semibold text-foreground">Product Details:</h4>
+                    <h4 className="font-semibold text-foreground">Stone details:</h4>
                     <div className="grid grid-cols-2 gap-3 text-sm">
                       <div>
                         <span className="font-medium text-muted-foreground">Name:</span>
@@ -506,10 +506,10 @@ export default function ProductsList({
                     ⚠️ Warning: The following data will be permanently deleted:
                   </p>
                   <ul className="text-red-700 text-sm mt-2 list-disc list-inside space-y-1">
-                    <li>Product information and specifications</li>
+                    <li>Stone details and specifications</li>
                     <li>Pricing and discount data</li>
                     <li>Stock and inventory records</li>
-                    <li>All associated product history</li>
+                    <li>All associated stone history</li>
                   </ul>
                 </div>
               </div>
@@ -521,7 +521,7 @@ export default function ProductsList({
               onClick={handleConfirmDelete}
               className="bg-red-600 hover:bg-red-700 focus:ring-red-600"
             >
-              Delete Product
+              Delete Stone
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

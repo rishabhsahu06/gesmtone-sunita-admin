@@ -41,7 +41,6 @@ export default function CreateJewelleryPage() {
     Boolean(item.originalPrice) &&
     Boolean(item.stock) &&
     Boolean(item.jewelleryType) &&
-    Boolean(item.metal) &&
     item.images?.length > 0;
 
   const handleSave = async () => {
@@ -70,15 +69,13 @@ export default function CreateJewelleryPage() {
             : undefined,
         stock: Number.parseInt(item.stock, 10),
         jewelleryType: item.jewelleryType,
-        metal: item.metal,
         jewelleryTag: item.jewelleryTag || "all",
-        goldPurity: item.goldPurity?.trim() || undefined,
         size: item.size?.trim() || undefined,
         weight:
           item.weight !== "" && !Number.isNaN(Number(item.weight))
             ? Number.parseFloat(item.weight)
             : undefined,
-        isAvailable: item.isAvailable,
+        isAvailable: item.isAvailable !== false,
         images: item.images,
       };
 

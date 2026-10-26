@@ -84,7 +84,6 @@ export default function EditJewelleryPage() {
     Boolean(item.originalPrice) &&
     Boolean(item.stock) &&
     Boolean(item.jewelleryType) &&
-    Boolean(item.metal) &&
     item.images?.length > 0;
 
   const handleSave = async () => {
@@ -105,9 +104,7 @@ export default function EditJewelleryPage() {
             : undefined,
         stock: Number.parseInt(item.stock, 10),
         jewelleryType: item.jewelleryType,
-        metal: item.metal,
         jewelleryTag: item.jewelleryTag || "all",
-        goldPurity: item.goldPurity?.trim() || "",
         size: item.size?.trim() || "",
         weight:
           item.weight !== "" && !Number.isNaN(Number(item.weight))

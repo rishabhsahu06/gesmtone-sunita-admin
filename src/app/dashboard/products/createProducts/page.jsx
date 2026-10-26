@@ -123,8 +123,8 @@ export default function CreateProductPage() {
       await productAPI.create(cleanProductData, accessToken)
 
       toast({
-        title: "Product created",
-        description: "Product has been successfully created.",
+        title: "Stone added",
+        description: "This stone will show on the storefront.",
         variant: "success",
       })
 
@@ -152,12 +152,20 @@ export default function CreateProductPage() {
         onCancel={() => router.back()}
         onSave={handleAddProduct}
         canSave={!loading && Boolean(newProduct.name?.trim())}
+        title="Add Stone"
+        subtitle="This stone appears in Find Your Perfect Stone"
+        saveLabel="Save Stone"
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-6">
-            <BasicInformationForm product={newProduct} onChange={setNewProduct} />
+            <BasicInformationForm
+              product={newProduct}
+              onChange={setNewProduct}
+              nameLabel="Stone name"
+              namePlaceholder="Enter stone name"
+            />
 
             <PricingForm product={newProduct} onChange={setNewProduct} />
 
@@ -173,7 +181,11 @@ export default function CreateProductPage() {
           </div>
 
           <div className="lg:col-span-1">
-            <ImageUploadSection product={newProduct} onChange={setNewProduct} />
+            <ImageUploadSection
+              product={newProduct}
+              onChange={setNewProduct}
+              title="Stone photos"
+            />
           </div>
         </div>
 

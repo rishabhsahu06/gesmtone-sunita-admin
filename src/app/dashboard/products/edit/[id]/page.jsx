@@ -100,7 +100,7 @@ const ErrorFallback = ({ error, onRetry, onGoBack }) => (
             className="text-red-700 hover:bg-red-100"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Products
+            Back to Stones
           </Button>
         </div>
       </CardContent>
@@ -301,7 +301,7 @@ const ImageUploadSection = ({ images, onChange }) => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-[#0C2D48]">Product Images</CardTitle>
+        <CardTitle className="text-[#0C2D48]">Stone photos</CardTitle>
         <CardDescription>
           Upload and manage high-quality images of your product
         </CardDescription>
@@ -821,7 +821,7 @@ export default function EditProductPage() {
 
       toast({
         title: "Success",
-        description: "Product has been successfully updated.",
+        description: "The stone has been updated.",
         action: (
           <div className="flex items-center">
             <CheckCircle2 className="h-4 w-4 text-green-600 mr-2" />
@@ -933,11 +933,11 @@ export default function EditProductPage() {
             className="flex items-center hover:bg-gray-50"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Products
+            Back to Stones
           </Button>
           <div>
             <h1 className="text-3xl font-bold tracking-tight text-gray-900">
-              Edit Product
+              Edit Stone
             </h1>
             {product && (
               <p className="text-sm text-gray-500 mt-1">
@@ -998,7 +998,7 @@ export default function EditProductPage() {
           {/* Enhanced Form */}
           <Card className="shadow-sm">
             <CardHeader className="bg-gray-50 border-b">
-              <CardTitle className="text-xl">Product Information</CardTitle>
+              <CardTitle className="text-xl">Stone information</CardTitle>
               <CardDescription>
                 Update the product details below. Fields marked with{" "}
                 <span className="text-red-500">*</span> are required.
@@ -1018,7 +1018,7 @@ export default function EditProductPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-2">
                     <Label htmlFor="name" className="text-sm font-medium">
-                      Product Name <span className="text-red-500">*</span>
+                      Stone name <span className="text-red-500">*</span>
                     </Label>
                     <Input
                       id="name"

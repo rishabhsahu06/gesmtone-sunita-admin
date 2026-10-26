@@ -17,12 +17,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import {
-  GOLD_PURITIES,
-  JEWELLERY_METALS,
-  JEWELLERY_TAGS,
-  JEWELLERY_TYPES,
-} from "@/lib/jewellery";
+import { JEWELLERY_TAGS, JEWELLERY_TYPES } from "@/lib/jewellery";
 
 export default function JewelleryDetailsForm({ product, onChange }) {
   const handleChange = (field, value) => {
@@ -34,7 +29,7 @@ export default function JewelleryDetailsForm({ product, onChange }) {
       <CardHeader>
         <CardTitle className="text-[#0C2D48]">Jewellery Details</CardTitle>
         <CardDescription>
-          Type, metal, and listing details shown on the storefront
+          Type and listing details shown on the storefront
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -61,27 +56,6 @@ export default function JewelleryDetailsForm({ product, onChange }) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="metal" className="text-sm font-medium text-gray-700">
-              Metal <span className="text-red-500">*</span>
-            </Label>
-            <Select
-              value={product.metal}
-              onValueChange={(value) => handleChange("metal", value)}
-            >
-              <SelectTrigger className="focus:ring-[#0C2D48] focus:border-[#0C2D48]">
-                <SelectValue placeholder="Select metal" />
-              </SelectTrigger>
-              <SelectContent>
-                {JEWELLERY_METALS.map((metal) => (
-                  <SelectItem key={metal.id} value={metal.id}>
-                    {metal.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
             <Label htmlFor="jewelleryTag" className="text-sm font-medium text-gray-700">
               Storefront Tag
             </Label>
@@ -96,30 +70,6 @@ export default function JewelleryDetailsForm({ product, onChange }) {
                 {JEWELLERY_TAGS.map((tag) => (
                   <SelectItem key={tag.id} value={tag.id}>
                     {tag.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="goldPurity" className="text-sm font-medium text-gray-700">
-              Gold Purity
-            </Label>
-            <Select
-              value={product.goldPurity || "none"}
-              onValueChange={(value) =>
-                handleChange("goldPurity", value === "none" ? "" : value)
-              }
-            >
-              <SelectTrigger className="focus:ring-[#0C2D48] focus:border-[#0C2D48]">
-                <SelectValue placeholder="Optional" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">Not specified</SelectItem>
-                {GOLD_PURITIES.map((purity) => (
-                  <SelectItem key={purity} value={purity}>
-                    {purity}
                   </SelectItem>
                 ))}
               </SelectContent>

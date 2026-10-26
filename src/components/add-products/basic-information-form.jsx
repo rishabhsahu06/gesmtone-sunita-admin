@@ -11,7 +11,12 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
-export default function BasicInformationForm({ product, onChange }) {
+export default function BasicInformationForm({
+  product,
+  onChange,
+  nameLabel = "Product Name",
+  namePlaceholder = "Enter product name",
+}) {
   const handleChange = (field, value) => {
     onChange({ ...product, [field]: value });
   };
@@ -26,13 +31,13 @@ export default function BasicInformationForm({ product, onChange }) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="space-y-2">
             <Label htmlFor="name" className="text-sm font-medium text-gray-700">
-              Product Name <span className="text-red-500">*</span>
+              {nameLabel} <span className="text-red-500">*</span>
             </Label>
             <Input
               id="name"
               value={product.name}
               onChange={(e) => handleChange("name", e.target.value)}
-              placeholder="Enter product name"
+              placeholder={namePlaceholder}
               className="focus:ring-[#0C2D48] focus:border-[#0C2D48]"
               required
             />

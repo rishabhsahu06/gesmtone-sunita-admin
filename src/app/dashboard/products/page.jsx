@@ -115,8 +115,8 @@ export default function ProductsPage() {
       await productAPI.delete(id, accessToken);
       await fetchProducts();
       toast({
-        title: "Product deleted",
-        description: "Product has been successfully deleted.",
+        title: "Stone deleted",
+        description: "The stone has been removed.",
       });
     } catch (error) {
       console.error("Failed to delete product", error);
@@ -176,7 +176,7 @@ export default function ProductsPage() {
     return (
       <div className="flex-1 space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-3xl font-bold tracking-tight">Products</h2>
+          <h2 className="text-3xl font-bold tracking-tight">Stones</h2>
           <div className="flex items-center space-x-2">
             <div className="h-10 w-32 bg-gray-200 animate-pulse rounded" />
             <div className="h-10 w-32 bg-gray-200 animate-pulse rounded" />
@@ -205,7 +205,7 @@ export default function ProductsPage() {
   return (
     <div className="flex-1 space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-bold tracking-tight">Products</h2>
+        <h2 className="text-3xl font-bold tracking-tight">Stones</h2>
         <div className="flex items-center space-x-2">
           <Button
             onClick={exportToCSV}
@@ -220,22 +220,24 @@ export default function ProductsPage() {
             className="bg-[#0C2D48] hover:bg-[#0c2d40] text-white cursor-pointer"
           >
             <Plus className="mr-2 h-4 w-4" />
-            Add Product
+            Add Stone
           </Button>
         </div>
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Product Management</CardTitle>
-          <CardDescription>Manage your product inventory</CardDescription>
+          <CardTitle>Stones</CardTitle>
+          <CardDescription>
+            Add stones here. They appear in Find Your Perfect Stone on the storefront.
+          </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center space-x-2 mb-4">
             <div className="relative flex-1 max-w-sm">
               <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search products..."
+                placeholder="Search stones..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-8"
@@ -251,7 +253,7 @@ export default function ProductsPage() {
           {filteredProducts.length === 0 && !loading && (
             <div className="text-center py-8 space-y-4">
               <p className="text-gray-500">
-                No products found matching your search.
+                No stones found matching your search.
               </p>
               <Button
                 onClick={fetchProducts}

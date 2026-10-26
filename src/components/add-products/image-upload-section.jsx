@@ -16,7 +16,7 @@ import { Upload, X, ImageIcon, Loader2 } from "lucide-react";
 import useAccessToken from "@/hooks/useSession";
 import { compressImage } from "@/lib/compress-image";
 
-export default function ImageUploadSection({ product, onChange, maxImages }) {
+export default function ImageUploadSection({ product, onChange, maxImages, title = "Product Images" }) {
   const [uploadingImage, setUploadingImage] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [altText, setAltText] = useState("");
@@ -182,7 +182,7 @@ export default function ImageUploadSection({ product, onChange, maxImages }) {
     <Card className="sticky top-8">
       <CardHeader>
         <CardTitle className="text-[#0C2D48]">
-          Product Images <span className="text-red-500">*</span>
+          {title} <span className="text-red-500">*</span>
         </CardTitle>
         <CardDescription>
           {typeof maxImages === "number"

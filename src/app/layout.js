@@ -1,14 +1,6 @@
-import { Inter, Open_Sans } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "./provider";
 import { Toaster } from "@/components/ui/toaster";
-
-// Load fonts
-const inter = Inter({ subsets: ["latin"] });
-const openSans = Open_Sans({
-  subsets: ["latin"],
-  weight: ["400", "600", "700"],
-});
 
 export const metadata = {
   title: "Admin Dashboard",
@@ -19,7 +11,15 @@ export const metadata = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en">
-      <body className={openSans.className}>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600;700&display=swap"
+          rel="stylesheet"
+        />
+      </head>
+      <body>
         <AuthProvider>
           <Toaster />
           {children}
