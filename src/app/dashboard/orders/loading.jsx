@@ -1,3 +1,5 @@
+import TablePageSkeleton from "@/components/skeleton/tablePageSkeleton";
+
 export default function Loading() {
-  return null
+  return <TablePageSkeleton titleWidth={120} showExport />;
 }

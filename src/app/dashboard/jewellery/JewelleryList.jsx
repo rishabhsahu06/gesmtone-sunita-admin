@@ -38,7 +38,8 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { MoreHorizontal, Edit, Trash2, AlertTriangle } from "lucide-react";
+import { MoreHorizontal, Edit, Trash2, AlertTriangle } from "lucide-react"
+import { getListingBadgeVariant } from "@/lib/product-status";
 import { formatJewelleryLabel } from "@/lib/jewellery";
 
 export default function JewelleryList({
@@ -125,7 +126,7 @@ export default function JewelleryList({
                   </TableCell>
                   <TableCell>{item.stock}</TableCell>
                   <TableCell>
-                    <Badge variant={item.status === "active" ? "default" : "secondary"}>
+                    <Badge variant={getListingBadgeVariant(item.status)}>
                       {item.status}
                     </Badge>
                   </TableCell>

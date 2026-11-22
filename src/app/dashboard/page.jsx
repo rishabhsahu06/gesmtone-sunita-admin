@@ -13,19 +13,26 @@ import { RecentSales } from "@/components/recent-sales";
 import { Package, ShoppingCart, Phone, TrendingUp } from "lucide-react";
 import { analyticsAPI } from "@/lib/api";
 import useAccessToken from "@/hooks/useSession";
-
-// Mock analyticsAPI (replace with your actual API)
+import DashboardSkeleton from "@/components/skeleton/dashboardSkeleton";
 
 export default function DashboardPage() {
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const { accessToken } = useAccessToken();
+  const { accessToken, status } = useAccessToken();
+
   useEffect(() => {
+    if (status === "loading") return;
+    if (!accessToken) {
+      setLoading(false);
+      setError("Authentication required");
+      return;
+    }
+
     const fetchDashboardData = async () => {
       try {
         setLoading(true);
-        // Replace with your actual access token logic
+        setError(null);
         const response = await analyticsAPI.getSalesData(accessToken);
 
         if (response.data.success) {
@@ -41,43 +48,19 @@ export default function DashboardPage() {
     };
 
     fetchDashboardData();
-  }, []);
+  }, [accessToken, status]);
 
   if (loading) {
-    return (
-      <div className="flex-1 space-y-4">
-        <div className="flex items-center justify-between space-y-2">
-          <h2 className="text-3xl font-bold  tracking-tight">
-            Dashboard Overview
-          </h2>
-        </div>
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-          {[...Array(4)].map((_, i) => (
-            <Card key={i}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <div className="h-4 w-20 bg-gray-200 rounded animate-pulse"></div>
-                <div className="h-4 w-4 bg-gray-200 rounded animate-pulse"></div>
-              </CardHeader>
-              <CardContent>
-                <div className="h-8 w-16 bg-gray-200 rounded animate-pulse mb-2"></div>
-                <div className="h-3 w-24 bg-gray-200 rounded animate-pulse"></div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
-    );
+    return <DashboardSkeleton />;
   }
 
   if (error) {
     return (
-      <div className="flex-1 space-y-4">
-        <div className="flex items-center justify-between space-y-2">
-          <h2 className="text-3xl font-bold tracking-tight">
-            Dashboard Overview
-          </h2>
-        </div>
-        <div className="text-red-500 text-center p-4">{error}</div>
+      <div className="w-full min-w-0 max-w-full space-y-4 overflow-x-hidden">
+        <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
+          Dashboard Overview
+        </h2>
+        <div className="text-red-500 text-center p-4 break-words">{error}</div>
       </div>
     );
   }
@@ -85,22 +68,19 @@ export default function DashboardPage() {
   const { overview, growth, recentOrders, dailyStats } = dashboardData;
 
   return (
-    <div className="flex-1 space-y-4">
-      <div className="flex items-center justify-between space-y-2">
-        <h2 className="text-3xl font-bold tracking-tight">
-          Dashboard Overview
-        </h2>
-      </div>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <Card>
+    <div className="w-full min-w-0 max-w-full space-y-4 overflow-x-hidden">
+      <h2 className="text-2xl font-bold tracking-tight sm:text-3xl">
+        Dashboard Overview
+      </h2>
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <Card className="min-w-0">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Total Products
-            </CardTitle>
-            <Package className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">Total Products</CardTitle>
+            <Package className="h-4 w-4 shrink-0 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
+            <div className="text-2xl font-bold truncate">
               {overview.totalProducts.toLocaleString()}
             </div>
             <p className="text-xs text-muted-foreground">
@@ -109,13 +89,14 @@ export default function DashboardPage() {
             </p>
           </CardContent>
         </Card>
-        <Card>
+
+        <Card className="min-w-0">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Orders</CardTitle>
-            <ShoppingCart className="h-4 w-4 text-muted-foreground" />
+            <ShoppingCart className="h-4 w-4 shrink-0 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
+            <div className="text-2xl font-bold truncate">
               {overview.totalOrders.toLocaleString()}
             </div>
             <p className="text-xs text-muted-foreground">
@@ -124,13 +105,14 @@ export default function DashboardPage() {
             </p>
           </CardContent>
         </Card>
-        <Card>
+
+        <Card className="min-w-0">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Consultations</CardTitle>
-            <Phone className="h-4 w-4 text-muted-foreground" />
+            <Phone className="h-4 w-4 shrink-0 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
+            <div className="text-2xl font-bold truncate">
               {overview.totalBookingCalls}
             </div>
             <p className="text-xs text-muted-foreground">
@@ -138,13 +120,14 @@ export default function DashboardPage() {
             </p>
           </CardContent>
         </Card>
-        <Card>
+
+        <Card className="min-w-0">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Revenue</CardTitle>
-            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+            <TrendingUp className="h-4 w-4 shrink-0 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
+            <div className="text-2xl font-bold truncate">
               ₹{overview.totalRevenue.toLocaleString()}
             </div>
             <p className="text-xs text-muted-foreground">
@@ -154,23 +137,25 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
       </div>
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <Card className="col-span-4">
-          <CardHeader>
+
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-7">
+        <Card className="min-w-0 col-span-1 lg:col-span-4">
+          <CardHeader className="pb-2">
             <CardTitle>Sales Overview</CardTitle>
           </CardHeader>
-          <CardContent className="pl-2">
+          <CardContent className="min-w-0 overflow-hidden px-2 sm:px-6">
             <Overview data={dailyStats} />
           </CardContent>
         </Card>
-        <Card className="col-span-3">
+
+        <Card className="min-w-0 col-span-1 lg:col-span-3">
           <CardHeader>
             <CardTitle>Recent Sales</CardTitle>
             <CardDescription>
               You made {overview.monthlyOrders} sales this month.
             </CardDescription>
           </CardHeader>
-          <CardContent>
+          <CardContent className="min-w-0">
             <RecentSales data={recentOrders} />
           </CardContent>
         </Card>

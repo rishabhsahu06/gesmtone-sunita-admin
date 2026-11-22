@@ -12,6 +12,7 @@ export default function ProductHeader({
   title = "Create New Product",
   subtitle = "Add a new gemstone product to your inventory",
   saveLabel = "Create Product",
+  loadingLabel = "Saving...",
 }) {
   return (
     <div className="bg-white border-b border-gray-200">
@@ -48,7 +49,7 @@ export default function ProductHeader({
               {loading ? (
                 <>
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Creating...
+                  {loadingLabel}
                 </>
               ) : (
                 saveLabel

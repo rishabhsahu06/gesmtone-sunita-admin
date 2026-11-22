@@ -14,6 +14,7 @@ import { TrendingUp, DollarSign, ShoppingCart } from "lucide-react";
 import { useEffect, useState } from "react";
 import useAccessToken from "@/hooks/useSession";
 import { analyticsAPI } from "@/lib/api";
+import DashboardSkeleton from "@/components/skeleton/dashboardSkeleton";
 
 export default function AnalyticsPage() {
   const { accessToken } = useAccessToken();
@@ -24,7 +25,6 @@ export default function AnalyticsPage() {
     try {
       setLoading(true);
       const response = await analyticsAPI.getSalesData(accessToken);
-      console.log(response);
       setAnalyticsData(response.data.data);
     } catch (error) {
       console.error("Error fetching analytics:", error);
@@ -53,7 +53,7 @@ export default function AnalyticsPage() {
   };
 
   if (loading) {
-    return <div className="flex-1 space-y-4">Loading...</div>;
+    return <DashboardSkeleton />;
   }
 
   if (!analyticsData) {

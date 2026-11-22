@@ -30,6 +30,7 @@ import { Search, Eye, Download, Phone, Calendar, Loader2, ChevronLeft, ChevronRi
 import { useToast } from "@/hooks/use-toast"
 import { consultationAPI } from "@/lib/api"
 import useAccessToken from "@/hooks/useSession"
+import TablePageSkeleton from "@/components/skeleton/tablePageSkeleton"
 
 export default function ConsultationsPage() {
   const [consultations, setConsultations] = useState([])
@@ -298,14 +299,7 @@ export default function ConsultationsPage() {
   }
 
   if (loading) {
-    return (
-      <div className="flex-1 space-y-4">
-        <div className="flex items-center justify-center h-64">
-          <Loader2 className="h-8 w-8 animate-spin" />
-          <span className="ml-2">Loading consultations...</span>
-        </div>
-      </div>
-    )
+    return <TablePageSkeleton titleWidth={220} showExport />
   }
 
   return (

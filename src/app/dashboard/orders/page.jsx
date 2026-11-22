@@ -43,10 +43,11 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { Search, Eye, Download, Filter, Loader2 } from "lucide-react";
+import { Search, Eye, Download, Filter } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import useAccessToken from "@/hooks/useSession";
 import { orderAPI } from "@/lib/api";
+import TablePageSkeleton from "@/components/skeleton/tablePageSkeleton";
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState([]);
@@ -65,18 +66,17 @@ export default function OrdersPage() {
   const { accessToken } = useAccessToken();
 
   const fetchOrders = async () => {
+    if (!accessToken) return;
+
     try {
       setLoading(true);
       const response = await orderAPI.getAll(accessToken);
-      //hello check
 
       if (response.data.success) {
         const ordersData = response.data.data;
-        const summaryData = response.data.summary;
-
         setOrders(ordersData);
         setFilteredOrders(ordersData);
-        setSummary(summaryData);
+        setSummary(response.data.summary);
       } else {
         toast({
           title: "Error",
@@ -84,8 +84,7 @@ export default function OrdersPage() {
           variant: "destructive",
         });
       }
-    } catch (error) {
-      console.error("Error fetching orders:", error);
+    } catch {
       toast({
         title: "Error",
         description: "Failed to fetch orders.",
@@ -97,30 +96,35 @@ export default function OrdersPage() {
   };
 
   useEffect(() => {
-    fetchOrders();
+    if (accessToken) fetchOrders();
+    else setLoading(false);
   }, [accessToken]);
 
   useEffect(() => {
-    let filtered = orders.filter((order) => {
-      const customerName = order.user?.name || "";
-      const customerEmail = order.user?.email || "";
-      const orderId = order._id || "";
+    const term = searchTerm.trim().toLowerCase();
+    let filtered = orders;
 
-      return (
-        customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        orderId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        customerEmail.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-    });
+    if (term) {
+      filtered = orders.filter((order) => {
+        const customerName = order.user?.name || "";
+        const customerEmail = order.user?.email || "";
+        const orderId = order._id || "";
+        return (
+          customerName.toLowerCase().includes(term) ||
+          orderId.toLowerCase().includes(term) ||
+          customerEmail.toLowerCase().includes(term)
+        );
+      });
+    }
 
     if (statusFilter !== "all") {
       filtered = filtered.filter(
-        (order) => order.status.toLowerCase() === statusFilter.toLowerCase()
+        (order) => order.status?.toLowerCase() === statusFilter.toLowerCase()
       );
     }
 
     setFilteredOrders(filtered);
-    setCurrentPage(1); // Reset to first page when filtering
+    setCurrentPage(1);
   }, [searchTerm, statusFilter, orders]);
 
   // Pagination calculations
@@ -311,13 +315,7 @@ export default function OrdersPage() {
   };
 
   if (loading) {
-    return (
-      <div className="flex-1 space-y-4">
-        <div className="flex items-center justify-center h-64">
-          <Loader2 className="h-8 w-8 animate-spin" />
-        </div>
-      </div>
-    );
+    return <TablePageSkeleton titleWidth={120} showExport />;
   }
 
   return (

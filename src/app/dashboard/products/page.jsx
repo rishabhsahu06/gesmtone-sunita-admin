@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -13,113 +13,86 @@ import { Input } from "@/components/ui/input";
 import { Search, Download, Plus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { productAPI } from "@/lib/api";
+import {
+  ADMIN_LIST_FIELDS,
+  mapStoneListItem,
+} from "@/lib/product-form";
 import ProductsList from "./ProductsList";
 import { useRouter } from "next/navigation";
 import useAccessToken from "@/hooks/useSession";
-import ProductListSkeleton from "@/components/skeleton/productSkeleton";
+import { useDebouncedValue } from "@/hooks/useDebouncedValue";
+import TablePageSkeleton from "@/components/skeleton/tablePageSkeleton";
+import { getListingStatus } from "@/lib/product-status";
 
 export default function ProductsPage() {
   const [products, setProducts] = useState([]);
-  const [filteredProducts, setFilteredProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
+  const debouncedSearch = useDebouncedValue(searchTerm, 250);
   const { toast } = useToast();
   const router = useRouter();
-  const { accessToken } = useAccessToken();
+  const { accessToken, status } = useAccessToken();
 
-  // Fetch products from API
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
+    if (!accessToken) return;
+
     try {
       setLoading(true);
       const response = await productAPI.getAll(accessToken, {
         productType: "gemstone",
+        fields: ADMIN_LIST_FIELDS,
       });
-      console.log(response.data);
 
-      // Transform API data to match your table structure
-      const transformedProducts = response.data.data.map((product) => ({
-        id: product._id,
-        name: product.name,
-        slug: product.slug,
-        description: product.description,
-        price: product.discountedPrice || product.originalPrice,
-        originalPrice: product.originalPrice,
-        discountedPrice: product.discountedPrice,
-        category: product.primaryCategory,
-        secondaryCategory: product.secondaryCategory,
-        stock: product.stock,
-        status: product.isAvailable ? "active" : "inactive",
-        weight: product.weight,
-        weightRatti: product.weightRatti,
-        weightCarat: product.weightCarat,
-        shape: product.shape,
-        origin: product.origin,
-        certification: product.certification,
-        poojaEnergization: product.poojaEnergization,
-        images: product.images,
-        videoUrl: product.videoUrl,
-        features: product.features,
-        productBenefits: product.productBenefits,
-        colour: product.colour,
-        treatment: product.treatment,
-        treatmentType: product.treatmentType,
-        composition: product.composition,
-        returnPolicy: product.returnPolicy,
-        dimensionType: product.dimensionType,
-        specificGravity: product.specificGravity,
-        dimensions: product.dimensions,
-        refractiveIndex: product.refractiveIndex,
-        ratings: product.ratings,
-        isAvailable: product.isAvailable,
+      const transformed = (response.data.data || []).map((product) => ({
+        ...mapStoneListItem(product),
+        status: getListingStatus(product),
       }));
 
-      setProducts(transformedProducts);
-      setFilteredProducts(transformedProducts);
+      setProducts(transformed);
     } catch (error) {
-      console.error("Failed to fetch products", error);
-      const errorMessage =
-        error.response?.data?.message || "Failed to fetch products.";
       toast({
         title: "Error",
-        description: errorMessage,
-        variant: "error",
+        description:
+          error.response?.data?.message || "Failed to fetch products.",
+        variant: "destructive",
       });
       setProducts([]);
-      setFilteredProducts([]);
     } finally {
       setLoading(false);
     }
-  };
+  }, [accessToken, toast]);
 
   useEffect(() => {
-    fetchProducts();
-  }, []);
+    if (status === "loading") return;
+    if (accessToken) fetchProducts();
+    else setLoading(false);
+  }, [accessToken, status, fetchProducts]);
 
-  useEffect(() => {
-    const filtered = products.filter(
+  const filteredProducts = useMemo(() => {
+    const term = debouncedSearch.trim().toLowerCase();
+    if (!term) return products;
+    return products.filter(
       (product) =>
-        product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.category.toLowerCase().includes(searchTerm.toLowerCase())
+        product.name?.toLowerCase().includes(term) ||
+        product.category?.toLowerCase().includes(term) ||
+        product.origin?.toLowerCase().includes(term) ||
+        product.shape?.toLowerCase().includes(term)
     );
-    setFilteredProducts(filtered);
-  }, [searchTerm, products]);
+  }, [debouncedSearch, products]);
 
-  // Navigate to edit page instead of opening dialog
   const handleEditProduct = (product) => {
-    const id = product.id;
-    router.push(`/dashboard/products/edit/${id}`);
+    router.push(`/dashboard/products/edit/${product.id}`);
   };
 
   const handleDeleteProduct = async (id) => {
     try {
       await productAPI.delete(id, accessToken);
-      await fetchProducts();
+      setProducts((prev) => prev.filter((p) => p.id !== id));
       toast({
         title: "Stone deleted",
         description: "The stone has been removed.",
       });
-    } catch (error) {
-      console.error("Failed to delete product", error);
+    } catch {
       toast({
         title: "Error",
         description: "Failed to delete product.",
@@ -132,7 +105,6 @@ export default function ProductsPage() {
     const headers = [
       "ID",
       "Name",
-      "Description",
       "Original Price",
       "Discounted Price",
       "Category",
@@ -141,24 +113,21 @@ export default function ProductsPage() {
       "Origin",
       "Shape",
       "Weight",
-      "Colour",
     ];
     const csvContent = [
       headers.join(","),
       ...filteredProducts.map((product) =>
         [
           product.id,
-          `"${product.name}"`,
-          `"${product.description}"`,
-          product.originalPrice,
-          product.discountedPrice || "",
-          product.category,
-          product.stock,
-          product.status,
-          `"${product.origin || ""}"`,
+          `"${(product.name || "").replace(/"/g, '""')}"`,
+          product.originalPrice ?? "",
+          product.discountedPrice ?? "",
+          product.category || "",
+          product.stock ?? "",
+          product.status || "",
+          `"${(product.origin || "").replace(/"/g, '""')}"`,
           product.shape || "",
           product.weight || "",
-          product.colour || "",
         ].join(",")
       ),
     ].join("\n");
@@ -167,39 +136,13 @@ export default function ProductsPage() {
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "products.csv";
+    a.download = "stones.csv";
     a.click();
     window.URL.revokeObjectURL(url);
   };
 
   if (loading) {
-    return (
-      <div className="flex-1 space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-3xl font-bold tracking-tight">Stones</h2>
-          <div className="flex items-center space-x-2">
-            <div className="h-10 w-32 bg-gray-200 animate-pulse rounded" />
-            <div className="h-10 w-32 bg-gray-200 animate-pulse rounded" />
-          </div>
-        </div>
-
-        <Card>
-          <CardHeader>
-            <div className="h-6 bg-gray-300 rounded w-48 mb-2 animate-pulse" />
-            <div className="h-4 bg-gray-200 rounded w-72 animate-pulse" />
-          </CardHeader>
-          <CardContent>
-            <div className="flex items-center space-x-2 mb-4">
-              <div className="relative flex-1 max-w-sm">
-                <div className="h-10 bg-gray-200 rounded animate-pulse" />
-              </div>
-            </div>
-
-            <ProductListSkeleton />
-          </CardContent>
-        </Card>
-      </div>
-    );
+    return <TablePageSkeleton titleWidth={120} showExport />;
   }
 
   return (
@@ -212,7 +155,7 @@ export default function ProductsPage() {
             variant="outline"
             className="cursor-pointer"
           >
-            <Download className="mr-2 h-4 w-4 " />
+            <Download className="mr-2 h-4 w-4" />
             Export CSV
           </Button>
           <Button
@@ -229,7 +172,8 @@ export default function ProductsPage() {
         <CardHeader>
           <CardTitle>Stones</CardTitle>
           <CardDescription>
-            Add stones here. They appear in Find Your Perfect Stone on the storefront.
+            Add stones here. They appear in Find Your Perfect Stone on the
+            storefront.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -250,10 +194,12 @@ export default function ProductsPage() {
             onEdit={handleEditProduct}
             onDelete={handleDeleteProduct}
           />
-          {filteredProducts.length === 0 && !loading && (
+          {filteredProducts.length === 0 && (
             <div className="text-center py-8 space-y-4">
               <p className="text-gray-500">
-                No stones found matching your search.
+                {searchTerm
+                  ? "No stones found matching your search."
+                  : "No stones yet. Add a stone to show it on the website."}
               </p>
               <Button
                 onClick={fetchProducts}

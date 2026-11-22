@@ -1,125 +1,120 @@
+import api from "./axiosInstanc";
 
-import api from "./axiosInstanc"
+const authHeaders = (token) =>
+  token
+    ? {
+        Authorization: `Bearer ${token}`,
+      }
+    : {};
 
+const DEFAULT_LIST_LIMIT = 200;
 
-// API functions
 export const productAPI = {
-  getAll: (token, params = {}) => api.get("/products", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    params: {
-      limit: 100000,
-      ...params,
-    },
-  }),
-  getById: (id, token) => api.get(`/products/${id}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  }),
-  create: (data, token) => api.post("/products", data, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  }),
-  update: (id, data, token) => api.put(`/products/${id}`, data, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  }),
-  delete: (id, token) => api.delete(`/products/${id}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  }),
+  getAll: (token, params = {}) =>
+    api.get("/products", {
+      headers: authHeaders(token),
+      params: {
+        limit: DEFAULT_LIST_LIMIT,
+        ...params,
+      },
+    }),
+  getById: (id, token) =>
+    api.get(`/products/${id}`, {
+      headers: authHeaders(token),
+    }),
+  create: (data, token) =>
+    api.post("/products", data, {
+      headers: authHeaders(token),
+    }),
+  update: (id, data, token) =>
+    api.put(`/products/${id}`, data, {
+      headers: authHeaders(token),
+    }),
+  delete: (id, token) =>
+    api.delete(`/products/${id}`, {
+      headers: authHeaders(token),
+    }),
 };
-export const reelAPI = {
-  getAll: (token) => api.get("/video", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  }),
-  getById: (id, token) => api.get(`/video/${id}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  }),
-  create: (data, token) => api.post("/video", data, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  }),
 
-  delete: (id, token) => api.delete(`/video/${id}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  }),
+export const reelAPI = {
+  getAll: (token) =>
+    api.get("/video", {
+      headers: authHeaders(token),
+    }),
+  getById: (id, token) =>
+    api.get(`/video/${id}`, {
+      headers: authHeaders(token),
+    }),
+  create: (data, token) =>
+    api.post("/video", data, {
+      headers: authHeaders(token),
+    }),
+  delete: (id, token) =>
+    api.delete(`/video/${id}`, {
+      headers: authHeaders(token),
+    }),
 };
 
 export const orderAPI = {
-  // getAll: (token) => api.get("/orders/admin/all", {
-// /api/orders?status=Processing&limit=1000')
-// /api/orders?startDate=2024-01-01&endDate=2024-12-31&limit=1000')
-// /api/orders?startDate=2024-01-01&endDate=2024-12-31&limit=1000')
-// fetch('/api/orders?status=Processing&limit=1000')
-  getAll: (token) => api.get("/orders?limit=100000", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  }),
-  getById: (id, token) => api.get(`/orders/${id}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  }),
-  updateStatus: (id, status, token) => api.put(`/orders/${id}`, { status }, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  }),
-}
+  getAll: (token, params = {}) =>
+    api.get("/orders", {
+      headers: authHeaders(token),
+      params: {
+        limit: DEFAULT_LIST_LIMIT,
+        ...params,
+      },
+    }),
+  getById: (id, token) =>
+    api.get(`/orders/${id}`, {
+      headers: authHeaders(token),
+    }),
+  updateStatus: (id, status, token) =>
+    api.put(
+      `/orders/${id}`,
+      { status },
+      {
+        headers: authHeaders(token),
+      }
+    ),
+};
 
 export const consultationAPI = {
-  getAll: (token) => api.get("/booking-call", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  }),
-  getById: (id, token) => api.get(`/consultations/${id}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  }),
-  updateStatus: (id, status, token) => api.put(`booking-call/${id}`, { status }, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  }),
-  delete: (id, token) => api.delete(`/booking-call/${id}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  }),
-}
+  getAll: (token, params = {}) =>
+    api.get("/booking-call", {
+      headers: authHeaders(token),
+      params,
+    }),
+  getById: (id, token) =>
+    api.get(`/consultations/${id}`, {
+      headers: authHeaders(token),
+    }),
+  updateStatus: (id, status, token) =>
+    api.put(
+      `/booking-call/${id}`,
+      { status },
+      {
+        headers: authHeaders(token),
+      }
+    ),
+  delete: (id, token) =>
+    api.delete(`/booking-call/${id}`, {
+      headers: authHeaders(token),
+    }),
+};
 
 export const analyticsAPI = {
-  getSalesData: (token) => api.get("/orders/admin/stats", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  }),
-  getGrowthData: (token) => api.get("/analytics/growth", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  }),
-  getCategoryData: (token) => api.get("/analytics/categories", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  } ),
-}
+  getSalesData: (token) =>
+    api.get("/orders/admin/stats", {
+      headers: authHeaders(token),
+    }),
+  getGrowthData: (token) =>
+    api.get("/analytics/growth", {
+      headers: authHeaders(token),
+    }),
+  getCategoryData: (token) =>
+    api.get("/analytics/categories", {
+      headers: authHeaders(token),
+    }),
+};
 
-export default api
+export default api;

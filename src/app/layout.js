@@ -1,4 +1,5 @@
 import "./globals.css";
+import "react-loading-skeleton/dist/skeleton.css";
 import { AuthProvider } from "./provider";
 import { Toaster } from "@/components/ui/toaster";
 

@@ -11,6 +11,7 @@ import BasicInformationForm from "@/components/add-products/basic-information-fo
 import PricingForm from "@/components/add-products/pricing-form";
 import ImageUploadSection from "@/components/add-products/image-upload-section";
 import JewelleryDetailsForm from "@/components/add-jewellery/jewellery-details-form";
+import FormPageSkeleton from "@/components/skeleton/formPageSkeleton";
 
 const emptyState = {
   name: "",
@@ -132,12 +133,7 @@ export default function EditJewelleryPage() {
   };
 
   if (loading) {
-    return (
-      <div className="flex-1 space-y-4 py-6">
-        <div className="h-10 w-48 bg-gray-200 animate-pulse rounded" />
-        <div className="h-96 bg-gray-100 animate-pulse rounded" />
-      </div>
-    );
+    return <FormPageSkeleton />;
   }
 
   return (

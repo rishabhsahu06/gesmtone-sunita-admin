@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { Upload, X, VideoIcon, Loader2, Play, Trash2 } from "lucide-react";
+import Skeleton from "react-loading-skeleton";
 import useAccessToken from "@/hooks/useSession";
 import { reelAPI } from "@/lib/api";
 
@@ -49,7 +50,6 @@ export default function VideoUploadSection({ product, onChange }) {
       //     },
       //   })
 
-      console.log(response.data.data, "response from reelAPI.getAll");
       if (!response.data.success) {
         throw new Error(`Failed to fetch videos: ${response.statusText}`);
       }
@@ -188,10 +188,12 @@ export default function VideoUploadSection({ product, onChange }) {
         throw new Error("Failed to save video to database");
       }
     } catch (error) {
-      console.log("tttt", error);
       toast({
         title: "Upload failed",
-        description: error.status || "Failed to upload video.",
+        description:
+          error?.response?.data?.message ||
+          error?.message ||
+          "Failed to upload video.",
         variant: "destructive",
       });
     } finally {
@@ -386,9 +388,21 @@ export default function VideoUploadSection({ product, onChange }) {
 
         {/* Uploaded Videos Display */}
         {loadingVideos ? (
-          <div className="text-center py-8">
-            <Loader2 className="h-8 w-8 text-gray-400 mx-auto mb-2 animate-spin" />
-            <p className="text-sm text-gray-500">Loading videos...</p>
+          <div className="space-y-3 py-2">
+            <Skeleton height={16} width={140} />
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div
+                key={i}
+                className="flex items-center gap-3 rounded-lg border bg-gray-50 p-3"
+              >
+                <Skeleton height={64} width={64} borderRadius={8} />
+                <div className="min-w-0 flex-1">
+                  <Skeleton height={16} width="70%" className="mb-2" />
+                  <Skeleton height={12} width="40%" />
+                </div>
+                <Skeleton circle height={28} width={28} />
+              </div>
+            ))}
           </div>
         ) : videos.length > 0 ? (
           <div className="space-y-3">
